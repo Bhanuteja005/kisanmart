@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: #fafbfb;
+}
+.card_background {
+  background-image: url("../public/user.jpg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: right;
+}
