@@ -1,52 +1,70 @@
 import React from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import { BsFillHandbagFill } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { FiLogOut, FiShoppingCart, FiUsers } from "react-icons/fi";
+import { MdCategory, MdDashboard, MdOutlineInventory, MdOutlinePeople, MdOutlineStorefront } from "react-icons/md";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { useStatusContext } from "../context/ContextProvider";
-import { links } from "../data/links";
+
+const links = [
+  { name: "Dashboard", path: "/dashboard", icon: <MdDashboard /> },
+  { name: "Staff Management", path: "/dashboard/staff", icon: <FiUsers /> },
+  { name: "Products", path: "/dashboard/products", icon: <MdOutlineInventory /> },
+  { name: "Dealers", path: "/dashboard/dealers", icon: <MdOutlineStorefront /> },
+  { name: "Customers", path: "/dashboard/customers", icon: <MdOutlinePeople /> },
+  { name: "Orders", path: "/dashboard/orders", icon: <FiShoppingCart /> },
+  { name: "Categories", path: "/dashboard/categories", icon: <MdCategory /> },
+];
 
 const Sidebar = () => {
-  const { activeMenu, setActiveMenu } = useStatusContext();
+  const { setActiveMenu } = useStatusContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    localStorage.removeItem("user");
+    navigate("/");
+  };
+
   return (
-    <div className="p-3 h-screen border-r border-gray-medium shadow-xl bg-green">
-      <div className="flex justify-between">
-        <Link
-          to={"/"}
-          onClick={() => {}}
-          className="items-center flex gap-3 text-[#f6f6f6] mt-3 ml-8 font-extrabold text-xl"
-        >
-          <BsFillHandbagFill /> <span>KisanMart</span>
+    <div className="p-3 h-screen bg-[#DFF1E6] border-r border-gray-medium shadow-xl relative">
+      <div className="flex justify-between items-center">
+        <Link to="/dashboard" className="items-center flex gap-3 text-[#00922F] mt-3 ml-4 font-extrabold text-xl">
+          <BsFillHandbagFill /> <span>KisanMart Tools</span>
         </Link>
-        <div
-          onClick={() => setActiveMenu(false)}
-          className="items-center flex mt-3 font-extrabold text-xl cursor-pointer p-3"
-        >
-          <button className="hover:bg-gray-light text-white-medium transition ease-linear delay-50 p-4 rounded-full">
-            <AiOutlineMenu />
-          </button>
-        </div>
+        <button onClick={() => setActiveMenu(false)} className="mt-3 p-3 hover:bg-[#02B5C2] text-[#00922F] rounded-full transition-colors">
+          <AiOutlineMenu />
+        </button>
       </div>
-      <div>
-        {links.map((link) => {
+
+      <div className="mt-6">
+        {links.map((item) => {
+          const isActive = location.pathname === item.path; // **Exact match only**
+
           return (
-            <div className="p-1 mt-2" key={link.title}>
-              {link.pageLink.map((item) => {
-                return (
-                  <Link
-                    key={item.name}
-                    to={`/${item.slugName}`}
-                    className="hover:text-white text-gray-dark font-bold text-xl flex items-center space-x-4 p-3 mb-4 rounded hover:bg-blue-light cursor-pointer pl-8"
-                  >
-                    <div className="w-6">
-                      {item.icon}
-                    </div>
-                    <span>{item.name}</span>
-                  </Link>
-                );
-              })}
-            </div>
+            <Link
+              to={item.path}
+              key={item.name}
+              className="relative flex items-center gap-4 p-3 pl-6 transition-colors mb-2 text-[#00922F] hover:text-[#007A24]"
+            >
+              {/* Green highlight on left when active */}
+              {isActive && <div className="absolute left-0 top-0 h-full w-2 bg-[#00922F] rounded-r-lg"></div>}
+              <span className={`text-xl ${isActive ? "text-[#00922F] font-bold" : "text-[#00922F]"}`}>{item.icon}</span>
+              <span className={`text-lg ${isActive ? "font-bold" : ""}`}>{item.name}</span>
+            </Link>
           );
         })}
+      </div>
+
+      {/* Logout Button */}
+      <div className="absolute bottom-6 left-4 w-full">
+        <button onClick={handleLogout} className="flex items-center gap-4 text-[#00922F] text-lg font-semibold hover:text-[#007A24]">
+          <FiLogOut className="text-xl" />
+          Log Out
+        </button>
       </div>
     </div>
   );

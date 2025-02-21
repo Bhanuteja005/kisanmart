@@ -13,6 +13,23 @@ body {
   background-repeat: no-repeat;
   background-position: right;
 }
+.hero {
+  @apply flex flex-col md:flex-row items-center justify-between min-h-[80vh] container mx-auto px-4;
+}
+
+.hero-text {
+  @apply md:w-1/2 space-y-6;
+}
+
+.delivery {
+  @apply md:w-1/2 mt-10 md:mt-0;
+}
+
+@layer components {
+  .btn1 {
+    @apply inline-block px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-300;
+  }
+}
 
 /* Add these styles to your existing CSS */
 .MuiDataGrid-root {
