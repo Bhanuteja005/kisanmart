@@ -2,6 +2,13 @@ import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from '
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { db, storage } from './config';
 
+// Add this function to generate order ID
+const generateOrderId = () => {
+  const timestamp = Date.now().toString();
+  const random = Math.random().toString(36).substring(7);
+  return `KM${timestamp.slice(-6)}${random.toUpperCase()}`;
+};
+
 export const addProduct = async (productData, images) => {
   try {
     const imageUrls = [];
@@ -12,9 +19,10 @@ export const addProduct = async (productData, images) => {
       const url = await getDownloadURL(storageRef);
       imageUrls.push(url);
     }
-    // Add main product document
+    // Add main product document with order ID
     const productRef = await addDoc(collection(db, 'products'), {
       ...productData,
+      orderId: generateOrderId(), // Add this line
       imageUrls,
       createdAt: new Date().toISOString()
     });

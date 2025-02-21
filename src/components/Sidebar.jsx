@@ -4,6 +4,7 @@ import { BsFillHandbagFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { useStatusContext } from "../context/ContextProvider";
 import { links } from "../data/links";
+
 const Sidebar = () => {
   const { activeMenu, setActiveMenu } = useStatusContext();
   return (
@@ -20,7 +21,7 @@ const Sidebar = () => {
           onClick={() => setActiveMenu(false)}
           className="items-center flex mt-3 font-extrabold text-xl cursor-pointer p-3"
         >
-          <button className="hover:bg-gray-light  text-white-medium transition ease-linear delay-50 p-4 rounded-full">
+          <button className="hover:bg-gray-light text-white-medium transition ease-linear delay-50 p-4 rounded-full">
             <AiOutlineMenu />
           </button>
         </div>
@@ -34,9 +35,11 @@ const Sidebar = () => {
                   <Link
                     key={item.name}
                     to={`/${item.slugName}`}
-                    className="hover:text-white text-gray-dark font-bold text-xl flex items-center justify-center space-x-3 p-3 mb-4 rounded hover:bg-blue-light cursor-pointer"
+                    className="hover:text-white text-gray-dark font-bold text-xl flex items-center space-x-4 p-3 mb-4 rounded hover:bg-blue-light cursor-pointer pl-8"
                   >
-                    {item.icon}
+                    <div className="w-6">
+                      {item.icon}
+                    </div>
                     <span>{item.name}</span>
                   </Link>
                 );

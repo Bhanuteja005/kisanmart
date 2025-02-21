@@ -1,14 +1,15 @@
 import React from "react";
 import OrderDataTable from "../components/tables/OrderDataTable";
 import { useStatusContext } from "../context/ContextProvider";
+
 const Orders = () => {
   const { activeMenu } = useStatusContext();
   return (
-    <div
-      className={`${activeMenu ? "ml-72" : "w-full"} mt-4 flex justify-center`}
-    >
-      <div className="ml-4">
-        <h2 className="text-2xl font-extrabold pb-4 text-black">Order</h2>
+    <div className={`${activeMenu ? "ml-72" : "w-full"} p-4`}>
+      <div className="w-full">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-extrabold text-black">Orders</h2>
+        </div>
         <OrderDataTable />
       </div>
     </div>

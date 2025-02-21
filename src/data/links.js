@@ -1,5 +1,5 @@
 import { BsFillInboxesFill } from "react-icons/bs";
-import { FaClipboardList, FaUsers } from "react-icons/fa";
+import { FaClipboardList, FaUsers, FaUserTie } from "react-icons/fa";
 import { FiShoppingBag } from "react-icons/fi";
 import { MdCategory } from "react-icons/md";
 export const links = [
@@ -14,12 +14,22 @@ export const links = [
     ],
   },
   {
-    title: "Product",
+    title: "Inventory",
     pageLink: [
       {
         name: "Products",
         icon: <BsFillInboxesFill />,
         slugName: "products",
+      },
+    ],
+  },
+  {
+    title: "Staff",
+    pageLink: [
+      {
+        name: "Staff Management",
+        icon: <FaUserTie />,
+        slugName: "staff",
       },
     ],
   },
