@@ -1,7 +1,12 @@
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import { DataGrid } from "@mui/x-data-grid";
 import React, { useState } from "react";
 import { BsPlusLg } from "react-icons/bs";
-import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import { FiEdit2 } from "react-icons/fi";
+import { GrFormView } from "react-icons/gr";
 import { IoMdClose } from "react-icons/io";
+import { MdDeleteOutline } from "react-icons/md";
 
 const StaffManagement = () => {
   const [staffList, setStaffList] = useState([
@@ -10,6 +15,8 @@ const StaffManagement = () => {
   ]);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading] = useState(false);
+  // Add newStaff state
   const [newStaff, setNewStaff] = useState({
     name: "",
     phone: "",
@@ -18,12 +25,92 @@ const StaffManagement = () => {
     status: "Active"
   });
 
+  // Reset form function
+  const resetForm = () => {
+    setNewStaff({
+      name: "",
+      phone: "",
+      email: "",
+      role: "Staff",
+      status: "Active"
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    setStaffList([...staffList, { ...newStaff, id: staffList.length + 1, joined: new Date().toISOString().split('T')[0] }]);
+    setStaffList([...staffList, { 
+      ...newStaff, 
+      id: staffList.length + 1, 
+      joined: new Date().toISOString().split('T')[0] 
+    }]);
     setIsModalOpen(false);
-    setNewStaff({ name: "", phone: "", email: "", role: "Staff", status: "Active" });
+    resetForm();
   };
+
+  const columns = [
+    {
+      field: "name",
+      headerName: "Name",
+      flex: 1,
+      minWidth: 150,
+    },
+    {
+      field: "email",
+      headerName: "Email",
+      flex: 1.5,
+      minWidth: 200,
+    },
+    {
+      field: "phone",
+      headerName: "Phone",
+      flex: 1,
+      minWidth: 130,
+    },
+    {
+      field: "role",
+      headerName: "Role",
+      flex: 0.8,
+      minWidth: 100,
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 0.8,
+      minWidth: 100,
+      renderCell: (params) => (
+        <span className={`px-2 py-1 rounded-full text-xs ${
+          params.value === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        }`}>
+          {params.value}
+        </span>
+      ),
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params) => (
+        <div className="flex gap-2">
+          <Tooltip title="View">
+            <IconButton onClick={() => console.log('View:', params.row.id)}>
+              <GrFormView />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Edit">
+            <IconButton onClick={() => console.log('Edit:', params.row.id)}>
+              <FiEdit2 />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete">
+            <IconButton onClick={() => console.log('Delete:', params.row.id)}>
+              <MdDeleteOutline />
+            </IconButton>
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="w-full">
@@ -38,50 +125,55 @@ const StaffManagement = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="w-full overflow-x-auto">
-          <table className="w-full border border-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="p-4 text-left font-semibold text-gray-600 border-b border-r">Name</th>
-                <th className="p-4 text-left font-semibold text-gray-600 border-b border-r">Email</th>
-                <th className="p-4 text-left font-semibold text-gray-600 border-b border-r">Phone</th>
-                <th className="p-4 text-left font-semibold text-gray-600 border-b border-r">Role</th>
-                <th className="p-4 text-left font-semibold text-gray-600 border-b border-r">Status</th>
-                <th className="p-4 text-left font-semibold text-gray-600 border-b">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {staffList.map((staff) => (
-                <tr key={staff.id} className="hover:bg-gray-50">
-                  <td className="p-4 border-r">{staff.name}</td>
-                  <td className="p-4 border-r">{staff.email}</td>
-                  <td className="p-4 border-r">{staff.phone}</td>
-                  <td className="p-4 border-r">{staff.role}</td>
-                  <td className="p-4 border-r">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      staff.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {staff.status}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex gap-3">
-                      <button className="text-blue-600 hover:text-blue-800">
-                        <FaEye size={18} />
-                      </button>
-                      <button className="text-green-600 hover:text-green-800">
-                        <FaEdit size={18} />
-                      </button>
-                      <button className="text-red-600 hover:text-red-800">
-                        <FaTrash size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="w-full h-full bg-white rounded-lg shadow-md">
+        <div className="w-full h-[calc(100vh-200px)]">
+          <DataGrid
+            rows={staffList}
+            columns={columns}
+            pageSize={10}
+            rowsPerPageOptions={[10, 25, 50]}
+            checkboxSelection
+            disableSelectionOnClick
+            loading={loading}
+            sx={{
+              border: '1px solid #e0e0e0',
+              '& .MuiDataGrid-cell': {
+                borderRight: '1px solid #e0e0e0',
+                borderBottom: '1px solid #e0e0e0',
+                padding: '8px 16px',
+              },
+              '& .MuiDataGrid-columnHeader': {
+                borderRight: '1px solid #e0e0e0',
+                backgroundColor: '#f8f9fa',
+                padding: '12px 16px',
+                fontWeight: 'bold',
+              },
+              '& .MuiDataGrid-columnHeaders': {
+                borderBottom: '2px solid #e0e0e0',
+                backgroundColor: '#f8f9fa',
+              },
+              '& .MuiDataGrid-row': {
+                '&:nth-of-type(even)': {
+                  backgroundColor: '#fafafa',
+                },
+                '&:hover': {
+                  backgroundColor: '#f5f5f5',
+                },
+              },
+              '& .MuiDataGrid-footerContainer': {
+                borderTop: '2px solid #e0e0e0',
+              },
+              '& .MuiCheckbox-root': {
+                color: '#00922f',
+              },
+              '& .MuiDataGrid-columnHeaderCheckbox': {
+                borderRight: '1px solid #e0e0e0',
+              },
+              '& .MuiDataGrid-cellCheckbox': {
+                borderRight: '1px solid #e0e0e0',
+              }
+            }}
+          />
         </div>
       </div>
 

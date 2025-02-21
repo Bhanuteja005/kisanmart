@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { FiCamera } from "react-icons/fi";
-import { useStatusContext } from "../context/ContextProvider";
 import { getCategories } from '../firebase/categoryService';
 import { addProduct } from '../firebase/productService';
 
 const AddProduct = () => {
-  const { activeMenu } = useStatusContext();
   const [productImageUpload, setProductImageUpload] = useState([]);
   const [imageURLS, setImageURLs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -124,52 +122,48 @@ const AddProduct = () => {
   };
 
   return (
-    <div
-      className={`${
-        activeMenu ? "ml-72" : "w-full"
-      }  mt-4 flex justify-center  gap-1`}
-    >
-      <div className="w-full flex justify-center m-4">
-        <form
-          className="rounded-xl border-gray-dark shadow-2xl w-full p-8"
-          onSubmit={handleForm}
-        >
-          <h2 className="text-2xl border-b-2 border-b-gray-medium  pb-4 font-extrabold text-black">
-            Add Product
-          </h2>
-          <div className="flex w-full justify-between">
-            <div className="flex flex-col w-full">
-              <div className="w-full  mt-4">
-                <label
-                  htmlFor="imgUpload"
-                  className="text-xl font-semibold text-white cursor-pointer"
-                >
-                  <div className="rounded-full w-[3.5rem] flex justify-center items-center bg-gray p-4 hover:bg-gray-medium hover:text-white ">
-                    <FiCamera />
-                  </div>
-                </label>
-                <input
-                  className="invisible"
-                  multiple
-                  accept="image/png, image/jpg, image/gif, image/jpeg"
-                  id="imgUpload"
-                  type="file"
-                  onChange={handleProductImages}
-                />
+    <div className="w-full">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-extrabold text-gray-800">Add Product</h2>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <form onSubmit={handleForm}>
+          {/* Image Upload Section */}
+          <div className="mb-6">
+            <div className="flex items-center gap-4">
+              <label
+                htmlFor="imgUpload"
+                className="cursor-pointer rounded-full w-12 h-12 flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                <FiCamera className="text-xl text-gray-600" />
+              </label>
+              <div className="flex gap-2">
+                {imageURLS.map((imageSrc) => (
+                  <img
+                    onClick={() => removeSelectedImage(imageSrc)}
+                    key={imageSrc}
+                    className="w-24 h-24 object-cover border rounded-lg cursor-pointer hover:opacity-75 transition-opacity"
+                    src={imageSrc}
+                    alt="product preview"
+                  />
+                ))}
               </div>
-              <div className="mb-2">
-                <div className="w-[50%]  flex gap-1">
-                  {imageURLS.map((imageSrc) => (
-                    <img
-                      onClick={() => removeSelectedImage(imageSrc)}
-                      key={imageSrc}
-                      className="w-[6rem] cursor-pointer object-cover border border-black rounded h-[4rem]"
-                      src={imageSrc}
-                      alt="product" // Removed redundant "image" word
-                    />
-                  ))}
-                </div>
-              </div>
+            </div>
+            <input
+              className="hidden"
+              multiple
+              accept="image/png, image/jpg, image/gif, image/jpeg"
+              id="imgUpload"
+              type="file"
+              onChange={handleProductImages}
+            />
+          </div>
+
+          {/* Form Grid Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Basic Info Section */}
+            <div className="space-y-4">
               <div className="w-full mb-4">
                 <label
                   htmlFor="productName"
@@ -260,8 +254,10 @@ const AddProduct = () => {
                   <option value="multi">Multi Variant Product</option>
                 </select>
               </div>
+            </div>
 
-              {/* Base Product Details - Always visible */}
+            {/* Pricing and Stock Section */}
+            <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="w-full mb-4">
                   <label
@@ -354,121 +350,124 @@ const AddProduct = () => {
                   />
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* Variants Section - Only visible for multi-variant products */}
-              {productType === 'multi' && (
-                <div className="border-t border-gray-200 pt-4 mt-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">Product Variants</h3>
-                    <button
-                      type="button"
-                      onClick={addVariant}
-                      className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center gap-2 transition-colors"
-                    >
-                      <AiOutlinePlusCircle className="text-xl" />
-                      <span>Add Variant</span>
-                    </button>
-                  </div>
-                  
-                  {variants.map((variant, index) => (
-                    <div key={index} className="border rounded-lg p-4 mb-4 bg-gray-50">
-                      <div className="flex justify-between items-center mb-2">
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-md font-semibold">Variant #{index + 1}</h4>
-                          <button
-                            type="button"
-                            onClick={addVariant}
-                            className="text-green-500 hover:text-green-700 transition-colors"
-                          >
-                            <AiOutlinePlusCircle className="text-xl" />
-                          </button>
-                        </div>
-                        {variants.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeVariant(index)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            Remove
-                          </button>
-                        )}
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="w-full mb-4">
-                          <label className="text-sm font-semibold text-gray-medium">Variant Name *</label>
-                          <input
-                            type="text"
-                            required
-                            value={variant.name}
-                            onChange={(e) => handleVariantChange(index, 'name', e.target.value)}
-                            className="border outline-none w-full text-md font-semibold text-gray-dark rounded-lg p-2"
-                            placeholder="e.g. Small, Medium, Large"
-                          />
-                        </div>
-                        
-                        <div className="w-full mb-4">
-                          <label className="text-sm font-semibold text-gray-medium">Color/Type</label>
-                          <input
-                            type="text"
-                            value={variant.color}
-                            onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
-                            className="border outline-none w-full text-md font-semibold text-gray-dark rounded-lg p-2"
-                            placeholder="e.g. Red, Blue, XL"
-                          />
-                        </div>
-                        
-                        <div className="w-full mb-4">
-                          <label className="text-sm font-semibold text-gray-medium">Cost *</label>
-                          <input
-                            type="number"
-                            required
-                            value={variant.cost}
-                            onChange={(e) => handleVariantChange(index, 'cost', e.target.value)}
-                            className="border outline-none w-full text-md font-semibold text-gray-dark rounded-lg p-2"
-                          />
-                        </div>
-                        
-                        <div className="w-full mb-4">
-                          <label className="text-sm font-semibold text-gray-medium">Stock *</label>
-                          <input
-                            type="number"
-                            required
-                            value={variant.stock}
-                            onChange={(e) => handleVariantChange(index, 'stock', e.target.value)}
-                            className="border outline-none w-full text-md font-semibold text-gray-dark rounded-lg p-2"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="w-full mb-4">
-                <label
-                  className="mr-2  text-xl font-extrabold text-gray-medium"
-                  htmlFor="description"
+          {/* Variants Section - Full Width */}
+          {productType === 'multi' && (
+            <div className="mt-6 border-t pt-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Product Variants</h3>
+                <button
+                  type="button"
+                  onClick={addVariant}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center gap-2 transition-colors"
                 >
-                  Product Description *
-                </label>
-                <textarea
-                  className="border outline-none w-full text-xl font-semibold text-gray-dark rounded-lg p-2"
-                  id="description"
-                  rows="3"
-                  required
-                ></textarea>
-              </div>
-
-              <div className="mt-4">
-                <button 
-                  className="rounded-lg flex justify-between gap-1 hover:bg-blue-light items-center px-6 py-3 bg-blue font-semibold text-lg text-white"
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Adding Product...' : 'Add Product'}
+                  <AiOutlinePlusCircle className="text-xl" />
+                  <span>Add Variant</span>
                 </button>
               </div>
+              
+              {variants.map((variant, index) => (
+                <div key={index} className="border rounded-lg p-4 mb-4 bg-gray-50">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-md font-semibold">Variant #{index + 1}</h4>
+                      <button
+                        type="button"
+                        onClick={addVariant}
+                        className="text-green-500 hover:text-green-700 transition-colors"
+                      >
+                        <AiOutlinePlusCircle className="text-xl" />
+                      </button>
+                    </div>
+                    {variants.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeVariant(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="w-full mb-4">
+                      <label className="text-sm font-semibold text-gray-medium">Variant Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={variant.name}
+                        onChange={(e) => handleVariantChange(index, 'name', e.target.value)}
+                        className="border outline-none w-full text-md font-semibold text-gray-dark rounded-lg p-2"
+                        placeholder="e.g. Small, Medium, Large"
+                      />
+                    </div>
+                    
+                    <div className="w-full mb-4">
+                      <label className="text-sm font-semibold text-gray-medium">Color/Type</label>
+                      <input
+                        type="text"
+                        value={variant.color}
+                        onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
+                        className="border outline-none w-full text-md font-semibold text-gray-dark rounded-lg p-2"
+                        placeholder="e.g. Red, Blue, XL"
+                      />
+                    </div>
+                    
+                    <div className="w-full mb-4">
+                      <label className="text-sm font-semibold text-gray-medium">Cost *</label>
+                      <input
+                        type="number"
+                        required
+                        value={variant.cost}
+                        onChange={(e) => handleVariantChange(index, 'cost', e.target.value)}
+                        className="border outline-none w-full text-md font-semibold text-gray-dark rounded-lg p-2"
+                      />
+                    </div>
+                    
+                    <div className="w-full mb-4">
+                      <label className="text-sm font-semibold text-gray-medium">Stock *</label>
+                      <input
+                        type="number"
+                        required
+                        value={variant.stock}
+                        onChange={(e) => handleVariantChange(index, 'stock', e.target.value)}
+                        className="border outline-none w-full text-md font-semibold text-gray-dark rounded-lg p-2"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
+          )}
+
+          {/* Description - Full Width */}
+          <div className="mt-6">
+            <label
+              className="block text-sm font-medium text-gray-700 mb-2"
+              htmlFor="description"
+            >
+              Product Description *
+            </label>
+            <textarea
+              className="w-full border rounded-lg p-3 focus:ring-green-500 focus:border-green-500"
+              id="description"
+              rows="4"
+              required
+            ></textarea>
+          </div>
+
+          {/* Submit Button */}
+          <div className="mt-6 flex justify-end">
+            <button 
+              type="submit"
+              className="px-6 py-3 bg-[#00922F] text-white rounded-lg hover:bg-[#007D28] transition-colors font-semibold disabled:opacity-50"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Adding Product...' : 'Add Product'}
+            </button>
           </div>
         </form>
       </div>
