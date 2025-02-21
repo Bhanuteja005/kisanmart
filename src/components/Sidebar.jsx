@@ -30,16 +30,23 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="p-3 h-screen bg-[#DFF1E6] border-r border-gray-medium shadow-xl relative">
-      <div className="flex justify-between items-center">
-        <Link to="/dashboard" className="items-center flex gap-3 text-[#00922F] mt-3 ml-4 font-extrabold text-xl">
-          <BsFillHandbagFill /> <span>KisanMart Tools</span>
-        </Link>
-        <button onClick={() => setActiveMenu(false)} className="mt-3 p-3 hover:bg-[#02B5C2] text-[#00922F] rounded-full transition-colors">
-          <AiOutlineMenu />
-        </button>
+    <div className=" h-screen bg-[#DFF1E6] border-r border-gray-medium shadow-xl relative">
+      <div className="bg-[#00922F] p-4">
+        <div className="flex justify-between items-center">
+          <Link to="/dashboard" className="items-center flex gap-3 text-white font-extrabold text-xl">
+            <BsFillHandbagFill /> 
+            <span>KisanMart Tools</span>
+          </Link>
+          <button 
+            onClick={() => setActiveMenu(false)} 
+            className="p-3 hover:bg-[#007d28] text-white rounded-full transition-colors"
+          >
+            <AiOutlineMenu />
+          </button>
+        </div>
       </div>
-
+      <div className="p-3">
+      <div className="mt-6">
       <div className="mt-6">
         {links.map((item) => {
           const isActive = location.pathname === item.path; // **Exact match only**
@@ -58,7 +65,8 @@ const Sidebar = () => {
           );
         })}
       </div>
-
+      </div>
+      </div>
       {/* Logout Button */}
       <div className="absolute bottom-6 left-4 w-full">
         <button onClick={handleLogout} className="flex items-center gap-4 text-[#00922F] text-lg font-semibold hover:text-[#007A24]">

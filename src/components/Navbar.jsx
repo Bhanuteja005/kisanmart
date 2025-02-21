@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
+import { BsFillHandbagFill } from "react-icons/bs";
 import { FiSettings, FiShoppingBag } from "react-icons/fi";
 import { HiOutlineLogout } from "react-icons/hi";
 import { IoIosArrowDown } from "react-icons/io";
@@ -35,13 +36,17 @@ const Navbar = () => {
         >
           {!activeMenu ? (
             <div className="flex justify-between items-center">
-              <Link to="/dashboard" className="items-center flex gap-3 text-[#ffffff] mt-3 ml-4 font-extrabold text-xl">
-                <span>KisanMart Tools</span>
-              </Link>
-              <button className="hover:bg-[#007D28] text-white transition ease-linear delay-50 p-4 rounded-full">
-                <AiOutlineMenu />
-              </button>
-            </div>
+                      <Link to="/dashboard" className="items-center flex gap-3 text-white font-extrabold text-xl">
+                        <BsFillHandbagFill /> 
+                        <span>KisanMart Tools</span>
+                      </Link>
+                      <button 
+                        onClick={() => setActiveMenu(false)} 
+                        className="p-3 hover:bg-[#007d28] text-white rounded-full transition-colors"
+                      >
+                        <AiOutlineMenu />
+                      </button>
+                    </div>
           ) : null}
         </div>
         <div
