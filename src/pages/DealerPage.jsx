@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from 'react-hot-toast';
 import { BsPlusLg } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
 import DealerDataTable from "../components/tables/DealerDataTable";
+import { dealersAPI } from '../services/api';
 
 const DealerPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,35 +27,62 @@ const DealerPage = () => {
     address: "",
     status: "Active"
   });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const dealer = {
-      ...newDealer,
-      id: dealers.length + 1,
-      lastOrder: new Date().toISOString().split('T')[0],
-      totalOrders: 0,
-      revenue: "₹0"
-    };
-    
-    setDealers([...dealers, dealer]);
-    setIsModalOpen(false);
-    setNewDealer({ name: "", email: "", phone: "", address: "", status: "Active" });
+  useEffect(() => {
+    fetchDealers();
+  }, []);
+
+  const fetchDealers = async () => {
+    try {
+      setLoading(true);
+      const response = await dealersAPI.getAll();
+      setDealers(response.data);
+    } catch (error) {
+      toast.error('Failed to fetch dealers');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDealerAction = (action, dealerId) => {
-    switch (action) {
-      case 'delete':
-        setDealers(dealers.filter(dealer => dealer.id !== dealerId));
-        break;
-      case 'edit':
-        // Handle edit action
-        break;
-      case 'view':
-        // Handle view action
-        break;
-      default:
-        break;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const response = await dealersAPI.create(newDealer);
+      setDealers([...dealers, response.data]);
+      setIsModalOpen(false);
+      setNewDealer({ name: "", email: "", phone: "", address: "", status: "Active" });
+      toast.success('Dealer added successfully');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to add dealer');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDealerAction = async (action, dealerId) => {
+    try {
+      switch (action) {
+        case 'delete':
+          await dealersAPI.delete(dealerId);
+          setDealers(dealers.filter(dealer => dealer.id !== dealerId));
+          toast.success('Dealer deleted successfully');
+          break;
+        // Handle edit and view actions
+        case 'edit':
+          // Handle edit action
+          break;
+        case 'view':
+          // Handle view action
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      toast.error('Action failed');
+      console.error(error);
     }
   };
 

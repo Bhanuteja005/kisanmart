@@ -1,3 +1,4 @@
+import { Toaster } from 'react-hot-toast';
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -17,6 +18,7 @@ import {
 import DealerPage from "./pages/DealerPage";
 import OnBoarding from './pages/onBoarding';
 import StaffManagement from "./pages/StaffManagement";
+
 const EcommerceStatic = () => (
   <div className="p-4">
     <h1 className="text-2xl font-bold mb-4">Dashboard Overview</h1>
@@ -24,6 +26,7 @@ const EcommerceStatic = () => (
 );
 
 function App() {
+  <Toaster position="top-right" />
   return (
     <AuthProvider>
       <Router>
