@@ -9,18 +9,36 @@ const api = axios.create({
   },
 });
 
-// Add auth token to requests if it exists
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Request interceptor for API calls
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
+
+// Response interceptor for API calls
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('auth_token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const authAPI = {
-  login: (credentials) => api.post('/auth/login', credentials),
-  signup: (userData) => api.post('/auth/signup', userData),
+  login: (data) => api.post('/auth/login', data),
+  register: (data) => api.post('/auth/register', data),
+  logout: () => api.post('/auth/logout'),
   verifyToken: () => api.get('/auth/verify'),
 };
 
@@ -41,6 +59,14 @@ export const categoriesAPI = {
   getSubcategories: (categoryId) => api.get(`/categories/${categoryId}/subcategories`),
 };
 
+export const subcategoriesAPI = {
+  getAll: () => api.get('/subcategories'),
+  getById: (id) => api.get(`/subcategories/${id}`),
+  create: (data) => api.post('/subcategories', data),
+  update: (id, data) => api.put(`/subcategories/${id}`, data),
+  delete: (id) => api.delete(`/subcategories/${id}`),
+};
+
 export const dealersAPI = {
   getAll: () => api.get('/dealers'),
   getById: (id) => api.get(`/dealers/${id}`),
@@ -52,6 +78,7 @@ export const dealersAPI = {
 export const customersAPI = {
   getAll: () => api.get('/customers'),
   getById: (id) => api.get(`/customers/${id}`),
+  create: (data) => api.post('/customers', data),
   update: (id, data) => api.put(`/customers/${id}`, data),
   delete: (id) => api.delete(`/customers/${id}`),
 };

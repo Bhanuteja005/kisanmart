@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 
@@ -15,13 +16,13 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('auth_token');
       if (token) {
         const response = await authAPI.verifyToken();
-        setUser(response.data);
+        setUser(response.data.user);
       }
     } catch (error) {
-      localStorage.removeItem('token');
+      localStorage.removeItem('auth_token');
       setUser(null);
     } finally {
       setLoading(false);
@@ -32,11 +33,13 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.login(credentials);
       const { token, user } = response.data;
-      localStorage.setItem('token', token);
+      localStorage.setItem('auth_token', token);
       setUser(user);
+      toast.success('Login successful!');
       navigate('/dashboard');
       return { success: true };
     } catch (error) {
+      toast.error(error.response?.data?.message || 'Login failed');
       return {
         success: false,
         error: error.response?.data?.message || 'Login failed'
@@ -44,10 +47,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    navigate('/login');
+  const logout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('auth_token');
+      setUser(null);
+      navigate('/login');
+      toast.success('Logged out successfully');
+    }
   };
 
   return (

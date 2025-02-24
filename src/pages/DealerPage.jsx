@@ -103,6 +103,7 @@ const DealerPage = () => {
         <DealerDataTable 
           dealers={dealers} 
           onDealerAction={handleDealerAction}
+          loading={loading} // Now being used in DealerDataTable
         />
       </div>
 

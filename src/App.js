@@ -1,4 +1,3 @@
-import { Toaster } from 'react-hot-toast';
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -26,7 +25,6 @@ const EcommerceStatic = () => (
 );
 
 function App() {
-  <Toaster position="top-right" />
   return (
     <AuthProvider>
       <Router>
