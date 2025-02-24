@@ -1,149 +1,171 @@
-// ...copy content from dealer.jsx and rename the file...
 import React, { useState } from "react";
 import { BsPlusLg } from "react-icons/bs";
+import { IoMdClose } from "react-icons/io";
+import DealerDataTable from "../components/tables/DealerDataTable";
 
 const DealerPage = () => {
-  const [dealers, setDealers] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dealers, setDealers] = useState([
+    { 
+      id: 1, 
+      name: "Amit Kumar", 
+      email: "amit@example.com", 
+      phone: "9876543210", 
+      address: "123 Farm Road, Punjab", 
+      status: "Active",
+      lastOrder: "2024-02-15",
+      totalOrders: 25,
+      revenue: "₹1,25,000"
+    }
+  ]);
   const [newDealer, setNewDealer] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
-    status: "Active",
+    status: "Active"
   });
 
-  const handleInputChange = (e) => {
-    setNewDealer({ ...newDealer, [e.target.name]: e.target.value });
-  };
-
-  const handleAddDealer = () => {
-    setDealers([...dealers, newDealer]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const dealer = {
+      ...newDealer,
+      id: dealers.length + 1,
+      lastOrder: new Date().toISOString().split('T')[0],
+      totalOrders: 0,
+      revenue: "₹0"
+    };
+    
+    setDealers([...dealers, dealer]);
+    setIsModalOpen(false);
     setNewDealer({ name: "", email: "", phone: "", address: "", status: "Active" });
   };
 
-  return (
-    <div className="dealer-page p-6">
-      <h1 className="text-2xl font-bold mb-4">Dealer Management</h1>
+  const handleDealerAction = (action, dealerId) => {
+    switch (action) {
+      case 'delete':
+        setDealers(dealers.filter(dealer => dealer.id !== dealerId));
+        break;
+      case 'edit':
+        // Handle edit action
+        break;
+      case 'view':
+        // Handle view action
+        break;
+      default:
+        break;
+    }
+  };
 
-      {/* Dealer Management Table */}
-      <div className="border rounded-lg p-4 shadow-md bg-white">
-        <h2 className="text-lg font-semibold mb-3">Add Dealer</h2>
-        <table className="w-full border-collapse">
-          <tbody>
-            <tr>
-              <td className="p-2">Name:</td>
-              <td>
+  return (
+    <div className="w-full">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-extrabold text-gray-800">Dealer Management</h2>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="rounded-lg flex items-center gap-2 px-4 py-2 bg-[#00922F] hover:bg-[#007D28] transition-colors font-semibold text-white"
+        >
+          <BsPlusLg className="text-lg" />
+          <span>Add Dealer</span>
+        </button>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md">
+        <DealerDataTable 
+          dealers={dealers} 
+          onDealerAction={handleDealerAction}
+        />
+      </div>
+
+      {/* Add Dealer Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Add New Dealer</h3>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <IoMdClose size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Name*</label>
                 <input
                   type="text"
-                  name="name"
+                  required
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
                   value={newDealer.name}
-                  onChange={handleInputChange}
-                  placeholder="Name"
-                  className="p-2 border rounded w-full"
+                  onChange={(e) => setNewDealer({...newDealer, name: e.target.value})}
                 />
-              </td>
-            </tr><br></br>
-            <tr>
-              <td className="p-2">Email:</td>
-              <td>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email*</label>
                 <input
                   type="email"
-                  name="email"
+                  required
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
                   value={newDealer.email}
-                  onChange={handleInputChange}
-                  placeholder="Email"
-                  className="p-1 border rounded w-full"
+                  onChange={(e) => setNewDealer({...newDealer, email: e.target.value})}
                 />
-              </td>
-            </tr><br></br>
-            <tr>
-              <td className="p-2">Phone:</td>
-              <td>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Phone*</label>
                 <input
-                  type="text"
-                  name="phone"
+                  type="tel"
+                  required
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
                   value={newDealer.phone}
-                  onChange={handleInputChange}
-                  placeholder="Phone Number"
-                  className="p-2 border rounded w-full"
+                  onChange={(e) => setNewDealer({...newDealer, phone: e.target.value})}
                 />
-              </td>
-            </tr><br></br>
-            <tr>
-              <td className="p-2">Address:</td>
-              <td>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Address</label>
                 <input
                   type="text"
-                  name="address"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
                   value={newDealer.address}
-                  onChange={handleInputChange}
-                  placeholder="Address"
-                  className="p-2 border rounded w-full"
+                  onChange={(e) => setNewDealer({...newDealer, address: e.target.value})}
                 />
-              </td>
-            </tr><br></br>
-            <tr>
-              <td className="p-2">Status:</td>
-              <td>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Status</label>
                 <select
-                  name="status"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
                   value={newDealer.status}
-                  onChange={handleInputChange}
-                  className="p-2 border rounded w-full"
+                  onChange={(e) => setNewDealer({...newDealer, status: e.target.value})}
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
 
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={handleAddDealer}
-            className="rounded-lg flex items-center gap-2 px-4 py-2 bg-[#00922F] hover:bg-[#007D28] transition-colors font-semibold text-white"
-          >
-            <BsPlusLg className="text-lg" />
-            <span>Add Dealer</span>
-          </button>
+              <div className="flex gap-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2 bg-[#00922F] text-white rounded-md hover:bg-[#007D28]"
+                >
+                  Add Dealer
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
-
-      {/* Dealer List Table */}
-      <div className="border rounded-lg p-4 shadow-md bg-white mt-6">
-        <h2 className="text-lg font-semibold mb-3">Dealer List</h2>
-        <table className="w-full border-collapse border">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2">Name</th>
-              <th className="border p-2">Email</th>
-              <th className="border p-2">Phone</th>
-              <th className="border p-2">Address</th>
-              <th className="border p-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dealers.length > 0 ? (
-              dealers.map((dealer, index) => (
-                <tr key={index} className="text-center">
-                  <td className="border p-2">{dealer.name}</td>
-                  <td className="border p-2">{dealer.email}</td>
-                  <td className="border p-2">{dealer.phone}</td>
-                  <td className="border p-2">{dealer.address}</td>
-                  <td className="border p-2">{dealer.status}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="border p-2 text-center">
-                  No dealers added yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      )}
     </div>
   );
 };

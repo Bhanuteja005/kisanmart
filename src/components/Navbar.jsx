@@ -1,96 +1,95 @@
-import React, { useEffect, useState } from "react";
-import { FiSettings, FiShoppingBag } from "react-icons/fi";
-import { HiOutlineLogout } from "react-icons/hi";
-import { IoIosArrowDown } from "react-icons/io";
-import { Link, useNavigate } from "react-router-dom";
+import { Menu, Search, User } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import { useStatusContext } from "../context/ContextProvider";
 
 const Navbar = () => {
-  const { activeMenu, setActiveMenu, isClicked, setIsClicked } =
-    useStatusContext();
-  const [resize, setResize] = useState(undefined);
+  const { setActiveMenu } = useStatusContext();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const profileRef = useRef(null);
+
   useEffect(() => {
-    window.addEventListener("resize", () => {
-      setResize(window.innerWidth);
-    });
-  }, []);
-  useEffect(() => {
-    const handleResize = () => {
-      if (resize <= 950) {
-        setActiveMenu(false);
-      } else {
-        setActiveMenu(true);
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
       }
     };
-    handleResize();
-  }, [resize, setActiveMenu]);
-  
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <header className="relative bg-[#00922F]">
-      <nav className="flex justify-between p-2 items-center">
-        <div
-          className="text-xl cursor-pointer"
-          onClick={() => setActiveMenu(!activeMenu)}
-        >
+    <div className="flex flex-col w-full border-b bg-white">
+      {/* Main Navbar */}
+      <div className="flex items-center justify-between p-4">
+        <div className="flex items-center gap-4">
+          <button
+            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+            onClick={() => setActiveMenu(prev => !prev)}
+          >
+            <Menu className="h-6 w-6" />
+          </button>
           
+          {/* Desktop Search */}
+          <div className="hidden md:flex items-center">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                type="text"
+                placeholder="Search..."
+                className="pl-10 pr-4 py-2 border rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+          </div>
+
+          {/* Mobile Search Toggle */}
+          <button
+            className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+            onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+          >
+            <Search className="h-6 w-6" />
+          </button>
         </div>
-        <div
-          className="flex justify-between hover:bg-[#007D28] transition ease-linear delay-50 p-2 items-center cursor-pointer rounded-lg"
-          onClick={() =>
-            setIsClicked({ ...isClicked, userProfile: !isClicked.userProfile })
-          }
-        >
-          <div className="w-[2.5rem] mr-3">
-            <img
-              className="w-full  rounded-full"
-              src="/default.png"
-              alt="default"
+
+        {/* Profile Menu */}
+        <div className="relative" ref={profileRef}>
+          <button
+            className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg"
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+          >
+            <div className="h-8 w-8 rounded-full bg-[#00922F] flex items-center justify-center">
+              <User className="h-5 w-5 text-white" />
+            </div>
+            <span className="hidden md:block font-medium">Admin</span>
+          </button>
+
+          {/* Profile Dropdown */}
+          {isProfileOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-50">Profile</button>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-50">Settings</button>
+              <div className="border-t my-1"></div>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-50 text-red-600">
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile Search Bar */}
+      {isMobileSearchOpen && (
+        <div className="p-4 border-t md:hidden">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
-          <div className="text-white font-bold text-xl cursor-pointer">
-            Kisanmart
-          </div>
-          <div className="text-lg text-white">
-            <IoIosArrowDown />
-          </div>
         </div>
-      </nav>
-      {isClicked.userProfile ? <NavMenu /> : null}
-    </header>
-  );
-};
-
-const NavMenu = () => {
-  const navigate = useNavigate();
-
-  const handleSignOut = () => {
-    // Add any logout logic here (clear tokens, user data etc.)
-    localStorage.removeItem('user'); // Remove user data if any
-    navigate('/'); // Redirect to onboarding screen
-  };
-  return (
-    <div className="z-10 rounded-lg bg-white border-gray-light border absolute w-[14rem] shadow-lg right-0 mr-8 mt-4">
-      <div className="hover:bg-gray-light flex items-center gap-2 cursor-pointer border-b border-gray-medium text-lg w-full bg-slate-300 py-2 px-8">
-        <FiShoppingBag className="text-2xl" />
-        <span className="text-gray-dark font-bold text-xl cursor-pointer">
-          <Link to="/">eCommerce</Link>
-        </span>
-      </div>
-      <div className="hover:bg-gray-light flex items-center gap-2 cursor-pointer border-b border-gray-medium text-lg w-full bg-slate-300 py-2 px-8">
-        <FiSettings className="text-2xl" />
-        <span className="text-gray-dark font-bold text-xl cursor-pointer">
-          <Link to="/edit-profile">Edit Profile</Link>
-        </span>
-      </div>
-      <div 
-        onClick={handleSignOut}
-        className="hover:bg-gray-light flex items-center gap-2 cursor-pointer text-lg w-full bg-slate-300 py-2 px-8"
-      >
-        <HiOutlineLogout className="text-2xl" />
-        <span className="text-gray-dark font-bold text-xl cursor-pointer">
-          Sign Out
-        </span>
-      </div>
+      )}
     </div>
   );
 };

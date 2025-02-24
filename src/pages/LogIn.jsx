@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { BsFillHandbagFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import farmToolsImage from '../assets/farm-tools.jpg';
 import { useAuth } from '../context/AuthContext';
@@ -29,8 +30,8 @@ const LogIn = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left side - Image */}
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Image Section */}
       <div className="hidden lg:flex lg:w-1/2 bg-blue-50">
         <div className="w-full flex items-center justify-center p-8">
           <img 
@@ -42,9 +43,14 @@ const LogIn = () => {
         </div>
       </div>
 
-      {/* Right side - Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8">
-        <div className="max-w-md w-full space-y-8">
+      {/* Form Section */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-8">
+        <div className="w-full max-w-md space-y-8">
+          {/* Logo for mobile */}
+          <div className="lg:hidden flex justify-center mb-8">
+            <BsFillHandbagFill className="text-4xl text-[#00922F]" />
+          </div>
+          
           <div>
             <h1 className="text-4xl font-bold text-center text-gray-900 mb-2">
               Welcome to KisanMart

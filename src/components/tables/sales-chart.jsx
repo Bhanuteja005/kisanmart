@@ -26,12 +26,29 @@ const SalesChart = () => {
 
   return (
     <div className="rounded-lg border bg-white p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <h3 className="text-xl font-semibold text-gray-800">Sales Analytics</h3>
           <p className="text-sm text-gray-500">Monitor your sales performance</p>
         </div>
-        <div className="flex gap-2">
+        
+        {/* Mobile Dropdown for Time Range */}
+        <div className="sm:hidden">
+          <select
+            value={selectedRange}
+            onChange={(e) => setSelectedRange(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            {timeRanges.map((range) => (
+              <option key={range.value} value={range.value}>
+                {range.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Desktop Time Range Buttons */}
+        <div className="hidden sm:flex gap-2">
           {timeRanges.map((range) => (
             <button
               key={range.value}

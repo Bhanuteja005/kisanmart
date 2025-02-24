@@ -1,7 +1,8 @@
 import { BoxIcon, Users, Wallet } from "lucide-react";
 import React, { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { Navbar, Sidebar } from "../components";
+import { Sidebar } from "../components";
+import MobileHeader from '../components/MobileHeader';
 import OrdersTable from "../components/tables/orders-table";
 import ProductsTable from "../components/tables/products-table";
 import SalesChart from "../components/tables/sales-chart";
@@ -15,18 +16,19 @@ const DashBoard = () => {
   const [isHovered, setIsHovered] = useState(false); // Add this state
 
   return (
-    <div className="flex">
-      <Sidebar onHoverChange={setIsHovered} /> {/* Pass hover state handler */}
-      <div className={`w-full min-h-screen transition-all duration-300 ease-in-out relative z-0
-        ${activeMenu || isHovered ? "md:ml-72" : "md:ml-20"}`}> {/* Removed hover class */}
-        <div className="fixed w-full bg-white md:static">
-          <Navbar />
-        </div>
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50">
+      <Sidebar onHoverChange={setIsHovered} />
+      
+      <div className={`flex-1 transition-all duration-300 ${
+        activeMenu || isHovered ? "lg:ml-72" : "lg:ml-20"
+      }`}>
+        <MobileHeader title={isDashboardHome ? "Dashboard" : ""} />
         
-        <div className="p-4">
+        <div className="p-4 lg:p-6">
           {isDashboardHome ? (
-            <main className="flex-1 space-y-6">
-              <div className="grid gap-6 md:grid-cols-3">
+            <main className="space-y-6">
+              {/* Stats Cards - Make responsive grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
                 <StatsCard
                   title="Total Sales"
                   value="₹68,250"
@@ -46,11 +48,17 @@ const DashBoard = () => {
                   icon={<Wallet className="h-5 w-5" />}
                 />
               </div>
-              <div className="grid gap-6 md:grid-cols-2">
+
+              {/* Charts Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                 <SalesChart />
                 <ProductsTable />
               </div>
-              <OrdersTable />
+
+              {/* Orders Table */}
+              <div className="overflow-hidden">
+                <OrdersTable />
+              </div>
             </main>
           ) : (
             <Outlet />
