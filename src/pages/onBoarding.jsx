@@ -40,7 +40,7 @@ const OnBoarding = () => {
               to="/signup"
               className="px-6 py-2 rounded-full border-2 border-[#00922F] text-[#00922F] hover:bg-[#00922F] hover:text-white transition-colors duration-300"
             >
-              Sign Up
+              SignUp
             </Link>
           </div>
         </nav>
