@@ -1,32 +1,36 @@
 import React, { useState } from "react";
+import { toast } from 'react-hot-toast';
 import { BsFillHandbagFill } from "react-icons/bs";
-import { useNavigate } from "react-router-dom";
-import farmToolsImage from '../assets/farm-tools.jpg';
+import MobileloginCristina from '../assets/Mobile-login-Cristina.jpg';
 import { useAuth } from '../context/AuthContext';
 import '../index.css';
-
 const LogIn = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [credentials, setCredentials] = useState({
+    email: "",
+    password: ""
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setIsLoading(true);
     
     try {
-      // Add your admin credentials validation here
-      if (email === "admin@kisanmart.com" && password === "admin123") {
-        await login({ email, role: 'admin' });
-        navigate('/dashboard');
-      } else {
-        setError("Invalid credentials");
+      const result = await login(credentials);
+      if (!result.success) {
+        toast.error(result.error);
       }
-    } catch (error) {
-      setError("Failed to login");
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleChange = (e) => {
+    setCredentials({
+      ...credentials,
+      [e.target.name]: e.target.value
+    });
   };
 
   return (
@@ -35,7 +39,7 @@ const LogIn = () => {
       <div className="hidden lg:flex lg:w-1/2 bg-blue-50">
         <div className="w-full flex items-center justify-center p-8">
           <img 
-            src={farmToolsImage} 
+            src={MobileloginCristina} 
             alt="Farm Tools" 
             className="max-w-full h-auto rounded-2xl shadow-2xl"
           />
@@ -60,13 +64,7 @@ const LogIn = () => {
             </p>
           </div>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
-
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div className="rounded-md shadow-sm space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -77,8 +75,8 @@ const LogIn = () => {
                   name="email"
                   type="email"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={credentials.email}
+                  onChange={handleChange}
                   className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                   placeholder="admin@example.com"
                 />
@@ -93,8 +91,8 @@ const LogIn = () => {
                   name="password"
                   type="password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={credentials.password}
+                  onChange={handleChange}
                   className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                   placeholder="••••••••"
                 />
@@ -126,9 +124,10 @@ const LogIn = () => {
 
             <button
               type="submit"
+              disabled={isLoading}
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-black bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Sign in
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
