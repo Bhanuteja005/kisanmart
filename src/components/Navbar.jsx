@@ -1,13 +1,23 @@
-import { Menu, Search, User } from "lucide-react";
+import { LogOut, Menu, Search, User } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { useStatusContext } from "../context/ContextProvider";
 
 const Navbar = () => {
+    const navigate = useNavigate();
+  
   const { setActiveMenu } = useStatusContext();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const profileRef = useRef(null);
-
+    const { logout } = useAuth();
+  
+const handleLogout = () => {
+  logout();
+  localStorage.removeItem("user");
+  navigate("/");
+};
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -19,12 +29,11 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className="flex flex-col w-full border-b bg-white">
-      {/* Main Navbar */}
-      <div className="flex items-center justify-between p-4">
+    <div className="flex flex-col w-full border-b bg-white shadow-sm">
+      <div className="flex items-center justify-between p-2">
         <div className="flex items-center gap-4">
           <button
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600"
             onClick={() => setActiveMenu(prev => !prev)}
           >
             <Menu className="h-6 w-6" />
@@ -37,15 +46,15 @@ const Navbar = () => {
               <input
                 type="text"
                 placeholder="Search..."
-                className="pl-10 pr-4 py-2 border rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
               />
             </div>
           </div>
 
           {/* Mobile Search Toggle */}
           <button
-            className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
-            onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+            className="md:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+            onClick={() => setShowMobileSearch(!showMobileSearch)}
           >
             <Search className="h-6 w-6" />
           </button>
@@ -54,22 +63,32 @@ const Navbar = () => {
         {/* Profile Menu */}
         <div className="relative" ref={profileRef}>
           <button
-            className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg"
+            className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
-            <div className="h-8 w-8 rounded-full bg-[#00922F] flex items-center justify-center">
-              <User className="h-5 w-5 text-white" />
+            <div className="h-9 w-9 rounded-full bg-[#00922F]/10 flex items-center justify-center">
+              <User className="h-5 w-5 text-[#00922F]" />
             </div>
-            <span className="hidden md:block font-medium">Admin</span>
+            <div className="hidden md:flex flex-col items-start">
+              <span className="text-sm font-medium text-gray-700">Admin</span>
+              <span className="text-xs text-gray-500">Super Admin</span>
+            </div>
           </button>
 
           {/* Profile Dropdown */}
           {isProfileOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-50">Profile</button>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-50">Settings</button>
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50">
+              <div className="px-4 py-3 border-b">
+                <p className="text-sm font-medium text-gray-700">Admin Account</p>
+                <p className="text-xs text-gray-500">admin@kisanmart.com</p>
+              </div>
+              <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Profile Settings
+              </button>
               <div className="border-t my-1"></div>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-50 text-red-600">
+              <button onClick={handleLogout}  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                <LogOut className="h-4 w-4" />
                 Logout
               </button>
             </div>
@@ -78,14 +97,14 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Search Bar */}
-      {isMobileSearchOpen && (
-        <div className="p-4 border-t md:hidden">
+      {showMobileSearch && (
+        <div className="p-4 border-t md:hidden bg-gray-50">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <input
               type="text"
               placeholder="Search..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
         </div>

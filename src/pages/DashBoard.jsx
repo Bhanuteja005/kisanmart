@@ -1,8 +1,9 @@
-import { BoxIcon, Users, Wallet } from "lucide-react";
+import { BoxIcon, TrendingUp, Users, Wallet } from "lucide-react";
 import React, { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Sidebar } from "../components";
 import MobileHeader from '../components/MobileHeader';
+import Navbar from "../components/Navbar"; // Change this import
 import OrdersTable from "../components/tables/orders-table";
 import ProductsTable from "../components/tables/products-table";
 import SalesChart from "../components/tables/sales-chart";
@@ -22,13 +23,18 @@ const DashBoard = () => {
       <div className={`flex-1 transition-all duration-300 ${
         activeMenu || isHovered ? "lg:ml-72" : "lg:ml-20"
       }`}>
-        <MobileHeader title={isDashboardHome ? "Dashboard" : ""} />
+        {/* Navbar should be outside the padding container */}
+        <div className="sticky top-0 z-40 w-full">
+          <Navbar />
+          <MobileHeader title={isDashboardHome ? "Dashboard" : ""} />
+        </div>
         
+        {/* Content area with padding */}
         <div className="p-4 lg:p-6">
           {isDashboardHome ? (
             <main className="space-y-6">
               {/* Stats Cards - Make responsive grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-6">
                 <StatsCard
                   title="Total Sales"
                   value="₹68,250"
@@ -47,6 +53,14 @@ const DashBoard = () => {
                   change={{ value: 3.2, trend: "down", label: "vs last month" }}
                   icon={<Wallet className="h-5 w-5" />}
                 />
+                 <StatsCard
+                  title="BEST SELLING PRODUCTS"
+                  value="Product A"
+                  change={{ value: 1.2, trend: "up", label: "Top seller" }}
+                  icon={<TrendingUp className="h-4 w-4 text-green-600" />}
+                  action={{ label: "View Products", href: "#" }}
+                />
+
               </div>
 
               {/* Charts Section */}
