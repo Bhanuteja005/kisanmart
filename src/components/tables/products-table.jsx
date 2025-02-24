@@ -1,85 +1,112 @@
-import { AlertTriangle } from "lucide-react";
 import React from "react";
+import ReactApexChart from "react-apexcharts";
+import { MdTrendingUp } from "react-icons/md";
 
-const products = [
-  {
-    name: "Kshitij Pola",
-    category: "Kshitij Pola",
-    subCategory: "Kshitij Pola",
-    quantity: "03",
-    status: "low",
-  },
-  {
-    name: "Kshitij Pola",
-    category: "Kshitij Pola",
-    subCategory: "Kshitij Pola",
-    quantity: "06",
-    status: "low",
-  },
-  {
-    name: "Kshitij Pola",
-    category: "Kshitij Pola",
-    subCategory: "Kshitij Pola",
-    quantity: "01",
-    status: "out",
-  },
-  {
-    name: "Kshitij Pola",
-    category: "Kshitij Pola",
-    subCategory: "Kshitij Pola",
-    quantity: "00",
-    status: "out",
-  },
-];
+
 
 const ProductsTable = () => {
+  const bestSellingProducts = [
+    { name: "Tractor Parts", sales: 38 },
+    { name: "Farm Tools", sales: 32 },
+    { name: "Seeds", sales: 30 }
+  ];
+
+  const chartOptions = {
+    series: bestSellingProducts.map(product => product.sales),
+    options: {
+      chart: {
+        height: 180, // Reduced from 250
+        type: "pie",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+      },
+      labels: bestSellingProducts.map(product => product.name),
+      colors: ['#00922F', '#34d399', '#6ee7b7'], // Green shades matching theme
+      dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+          return val.toFixed(1) + "%";
+        }
+      },
+      legend: {
+        position: 'bottom',
+        horizontalAlign: 'center',
+        fontSize: '14px',
+        markers: {
+          width: 10,
+          height: 10,
+          radius: 50,
+        },
+      },
+      plotOptions: {
+        pie: {
+          expandOnClick: false,
+          donut: {
+            size: '75%', // Increased from 65% to make the chart more compact
+            labels: {
+              show: true,
+              name: {
+                show: true,
+                fontSize: '16px', // Reduced from 22px
+                offsetY: -5
+              },
+              value: {
+                show: true,
+                fontSize: '14px', // Reduced from 16px
+                color: '#666',
+                offsetY: 12,
+                formatter: function (val) {
+                  return val + '%';
+                }
+              },
+              total: {
+                show: true,
+                label: 'Total',
+                color: '#666',
+                fontSize: '14px',
+                formatter: function (w) {
+                  return w.globals.seriesTotals.reduce((a, b) => a + b, 0) + '%';
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
   return (
-    <div className="rounded-lg border bg-white">
-      <div className="flex items-center justify-between border-b p-4">
-        <h3 className="font-semibold">Products</h3>
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-xs text-amber-600">
-            <AlertTriangle className="h-3 w-3" /> Low Stock: 03
-          </span>
-          <span className="flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs text-red-600">
-            <AlertTriangle className="h-3 w-3" /> Out of Stock: 01
-          </span>
+    <div className="rounded-lg border border-gray-200 bg-white p-6"> {/* Added border class to match SalesChart */}
+      <div className="flex justify-between items-center mb-4"> {/* Reduced from mb-6 */}
+        <h3 className="text-xl font-semibold text-gray-800">Best Selling Products</h3>
+        <div className="flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full">
+          <MdTrendingUp className="text-[#00922F]" />
+          <span className="text-sm font-medium text-[#00922F]">Top Products</span>
         </div>
       </div>
-      <table className="w-full">
-        <thead>
-          <tr className="border-b bg-gray-50">
-            <th className="p-4 text-left">Product Name</th>
-            <th className="p-4 text-left">Category</th>
-            <th className="p-4 text-left">Sub-Category</th>
-            <th className="p-4 text-left">Quantity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product, index) => (
-            <tr key={index} className="border-b">
-              <td className="p-4">{product.name}</td>
-              <td className="p-4">{product.category}</td>
-              <td className="p-4">{product.subCategory}</td>
-              <td className="p-4">
-                <span className={`flex items-center ${
-                  product.status === "out" ? "text-red-600" : "text-amber-600"
-                }`}>
-                  {product.quantity}
-                  <AlertTriangle className="ml-1 h-3 w-3" />
-                </span>
-              </td>
-            </tr>
+
+      <div className="grid grid-cols-1 gap-4"> {/* Reduced from gap-6 */}
+        {/* Chart */}
+        <div className="flex justify-center">
+          <ReactApexChart
+            options={chartOptions.options}
+            series={chartOptions.series}
+            type="donut"
+            height={180} // Reduced from 300
+          />
+        </div>
+
+        {/* Products List - More compact */}
+        <div className="mt-2"> {/* Reduced from mt-4 */}
+          {bestSellingProducts.map((product, index) => (
+            <div key={index} className="flex items-center justify-between py-2 border-b last:border-0"> {/* Reduced padding */}
+              <div className="flex items-center gap-2"> {/* Reduced gap */}
+                <div className={`w-2 h-2 rounded-full bg-[#00922F] opacity-${(100 - (index * 25))}%`}></div>
+                <span className="font-medium text-gray-700 text-sm">{product.name}</span> {/* Added text-sm */}
+              </div>
+              <span className="text-gray-600 text-sm">{product.sales}%</span>
+            </div>
           ))}
-        </tbody>
-      </table>
-      <div className="border-t p-4">
-        <button 
-          onClick={() => window.location.href = '/dashboard/products'} 
-          className="text-sm font-medium text-green-600 hover:underline"
-        >
-          All Products →
-        </button>
+        </div>
       </div>
     </div>
   );

@@ -1,65 +1,138 @@
-import React from "react";
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
+import React, { useState } from "react";
+import { MdOutlineQueryStats, MdTrendingUp } from "react-icons/md";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const data = [
-  { name: "Mon", value: 2400 },
-  { name: "Tue", value: 1398 },
-  { name: "Wed", value: 3800 },
-  { name: "Thu", value: 3908 },
-  { name: "Fri", value: 4800 },
-  { name: "Sat", value: 3800 },
+  { name: "Mon", sales: 2400, orders: 24 },
+  { name: "Tue", sales: 1398, orders: 13 },
+  { name: "Wed", sales: 3800, orders: 38 },
+  { name: "Thu", sales: 3908, orders: 39 },
+  { name: "Fri", sales: 4800, orders: 48 },
+  { name: "Sat", sales: 3800, orders: 38 },
+  { name: "Sun", sales: 4300, orders: 43 },
+];
+
+const timeRanges = [
+  { label: "Today", value: "today" },
+  { label: "This Week", value: "week" },
+  { label: "This Month", value: "month" },
+  { label: "This Year", value: "year" },
 ];
 
 const SalesChart = () => {
+  const [selectedRange, setSelectedRange] = useState("week");
+  const totalSales = data.reduce((sum, item) => sum + item.sales, 0);
+  const totalOrders = data.reduce((sum, item) => sum + item.orders, 0);
+
   return (
     <div className="rounded-lg border bg-white p-6">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold">Sales Performance</h3>
+        <div className="space-y-1">
+          <h3 className="text-xl font-semibold text-gray-800">Sales Analytics</h3>
+          <p className="text-sm text-gray-500">Monitor your sales performance</p>
+        </div>
         <div className="flex gap-2">
-          <button className="rounded-full bg-green-600 px-4 py-1 text-xs text-white">Today</button>
-          <button className="rounded-full px-4 py-1 text-xs text-gray-500">30</button>
-          <button className="rounded-full px-4 py-1 text-xs text-gray-500">70</button>
-          <button className="rounded-full border px-4 py-1 text-xs text-gray-500">Custom Date</button>
+          {timeRanges.map((range) => (
+            <button
+              key={range.value}
+              onClick={() => setSelectedRange(range.value)}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                selectedRange === range.value
+                  ? "bg-[#00922F] text-white"
+                  : "text-gray-500 hover:bg-gray-100"
+              }`}
+            >
+              {range.label}
+            </button>
+          ))}
         </div>
       </div>
-      <div className="mt-6">
-        <div className="text-sm text-gray-500">
-          Orders: 04
-          <br />
-          Revenue: ₹3200
+
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <div className="bg-green-50 rounded-lg p-4">
+            <div className="flex items-center gap-2">
+              <MdTrendingUp className="text-[#00922F] text-xl" />
+              <span className="text-sm font-medium text-gray-600">Total Sales</span>
+            </div>
+            <div className="mt-2">
+              <span className="text-2xl font-bold text-gray-900">₹{totalSales.toLocaleString()}</span>
+              <span className="ml-2 text-sm text-green-600">+12.5%</span>
+            </div>
+          </div>
+
+          <div className="bg-green-50 rounded-lg p-4">
+            <div className="flex items-center gap-2">
+              <MdOutlineQueryStats className="text-[#00922F] text-xl" />
+              <span className="text-sm font-medium text-gray-600">Total Orders</span>
+            </div>
+            <div className="mt-2">
+              <span className="text-2xl font-bold text-gray-900">{totalOrders}</span>
+              <span className="ml-2 text-sm text-green-600">+8.2%</span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="h-[200px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
-            <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className="rounded-lg border bg-white p-2 shadow-sm">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="flex flex-col">
-                          <span className="text-[0.70rem] uppercase text-gray-500">Orders</span>
-                          <span className="font-bold">{payload[0].value}</span>
+
+        <div className="h-[200px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#00922F" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#00922F" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis 
+                dataKey="name" 
+                stroke="#888888" 
+                fontSize={12} 
+                tickLine={false} 
+                axisLine={false}
+              />
+              <YAxis 
+                stroke="#888888" 
+                fontSize={12} 
+                tickLine={false} 
+                axisLine={false}
+                tickFormatter={(value) => `₹${value}`}
+              />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="rounded-lg border bg-white p-3 shadow-lg">
+                        <div className="grid gap-2">
+                          <div className="flex flex-col">
+                            <span className="text-sm text-gray-500">Sales</span>
+                            <span className="font-bold text-gray-900">
+                              ₹{payload[0].value.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-sm text-gray-500">Orders</span>
+                            <span className="font-bold text-gray-900">
+                              {payload[0].payload.orders}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke="#10B981"
-              fill="#10B981"
-              fillOpacity={0.2}
-              strokeWidth={2}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="sales"
+                stroke="#00922F"
+                strokeWidth={2}
+                fill="url(#salesGradient)"
+                dot={{ stroke: '#00922F', strokeWidth: 2, fill: '#ffffff', r: 4 }}
+                activeDot={{ stroke: '#00922F', strokeWidth: 2, fill: '#ffffff', r: 6 }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );

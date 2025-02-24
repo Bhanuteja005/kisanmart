@@ -1,5 +1,5 @@
 import { BoxIcon, Users, Wallet } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Navbar, Sidebar } from "../components";
 import OrdersTable from "../components/tables/orders-table";
@@ -12,17 +12,13 @@ const DashBoard = () => {
   const { activeMenu } = useStatusContext();
   const location = useLocation();
   const isDashboardHome = location.pathname === '/dashboard';
+  const [isHovered, setIsHovered] = useState(false); // Add this state
 
   return (
     <div className="flex">
-      {activeMenu ? (
-        <div className="w-72 h-screen fixed z-10">
-          <Sidebar />
-        </div>
-      ) : (
-        <div className="w-0">sidebar</div>
-      )}
-      <div className={`w-full ${activeMenu ? "md:ml-72" : "flex-2"}`}>
+      <Sidebar onHoverChange={setIsHovered} /> {/* Pass hover state handler */}
+      <div className={`w-full min-h-screen transition-all duration-300 ease-in-out relative z-0
+        ${activeMenu || isHovered ? "md:ml-72" : "md:ml-20"}`}> {/* Removed hover class */}
         <div className="fixed w-full bg-white md:static">
           <Navbar />
         </div>
@@ -32,25 +28,22 @@ const DashBoard = () => {
             <main className="flex-1 space-y-6">
               <div className="grid gap-6 md:grid-cols-3">
                 <StatsCard
-                  title="TODAY'S ORDERS"
-                  value="12"
-                  change={{ value: 0.7, trend: "up", label: "from yesterday" }}
-                  icon={<BoxIcon className="h-4 w-4 text-green-600" />}
-                  action={{ label: "All Orders", href: "/dashboard/orders" }}
+                  title="Total Sales"
+                  value="₹68,250"
+                  change={{ value: 9.5, trend: "up", label: "vs last month" }}
+                  icon={<BoxIcon className="h-5 w-5" />}
                 />
                 <StatsCard
-                  title="PENDING DEALERS"
-                  value="4"
-                  change={{ value: 0.3, trend: "up", label: "from yesterday" }}
-                  icon={<Users className="h-4 w-4 text-green-600" />}
-                  action={{ label: "All Dealers", href: "/dashboard/dealers" }}
+                  title="Active Dealers"
+                  value="245"
+                  change={{ value: 12.3, trend: "up", label: "new dealers" }}
+                  icon={<Users className="h-5 w-5" />}
                 />
                 <StatsCard
-                  title="REVENUE"
-                  value="₹3,200"
-                  change={{ value: 0.5, trend: "down", label: "from yesterday" }}
-                  icon={<Wallet className="h-4 w-4 text-green-600" />}
-                  action={{ label: "Sales Data", href: "#" }}
+                  title="Monthly Revenue"
+                  value="₹32,580"
+                  change={{ value: 3.2, trend: "down", label: "vs last month" }}
+                  icon={<Wallet className="h-5 w-5" />}
                 />
               </div>
               <div className="grid gap-6 md:grid-cols-2">

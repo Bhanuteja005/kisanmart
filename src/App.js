@@ -14,9 +14,9 @@ import {
   Products,
   SignUp
 } from "./pages";
+import DealerPage from "./pages/DealerPage";
 import OnBoarding from './pages/onBoarding';
 import StaffManagement from "./pages/StaffManagement";
-
 const EcommerceStatic = () => (
   <div className="p-4">
     <h1 className="text-2xl font-bold mb-4">Dashboard Overview</h1>
@@ -38,6 +38,7 @@ function App() {
             <Route index element={<EcommerceStatic />} />
             <Route path="products/*" element={<Products />} />
             <Route path="categories/*" element={<Categories />} />
+            <Route path="dealers/*" element={<DealerPage />} />
             <Route path="orders/*" element={<Orders />} />
             <Route path="customers/*" element={<Customers />} />
             <Route path="add-product" element={<AddProduct />} />
