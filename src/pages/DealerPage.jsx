@@ -37,7 +37,12 @@ const DealerPage = () => {
     try {
       setLoading(true);
       const response = await dealersAPI.getAll();
-      setDealers(response.data);
+      // Map _id to id for each dealer
+      const mappedDealers = response.data.map(dealer => ({
+        ...dealer,
+        id: dealer._id
+      }));
+      setDealers(mappedDealers);
     } catch (error) {
       toast.error('Failed to fetch dealers');
       console.error(error);

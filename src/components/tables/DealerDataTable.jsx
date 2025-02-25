@@ -6,7 +6,7 @@ import { FiEdit2 } from "react-icons/fi";
 import { GrFormView } from "react-icons/gr";
 import { MdDeleteOutline } from "react-icons/md";
 
-const DealerDataTable = ({ dealers = [], onDealerAction }) => {
+const DealerDataTable = ({ dealers = [], onDealerAction, loading }) => {
   const columns = [
     {
       field: "name",
@@ -102,6 +102,8 @@ const DealerDataTable = ({ dealers = [], onDealerAction }) => {
       <DataGrid
         rows={dealers}
         columns={columns}
+        getRowId={(row) => row._id || row.id}
+        loading={loading}
         pageSize={10}
         rowsPerPageOptions={[10, 25, 50]}
         checkboxSelection
