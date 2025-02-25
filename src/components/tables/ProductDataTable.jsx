@@ -1,194 +1,116 @@
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
-import { DataGrid } from "@mui/x-data-grid";
-import React, { useEffect, useState } from 'react';
-import { FiEdit2 } from "react-icons/fi";
-import { GrFormView } from "react-icons/gr";
-import { MdDeleteOutline } from "react-icons/md";
-import Checkbox from "@mui/material/Checkbox"; // ✅ Added for Best Seller checkbox
-import { useNavigate } from "react-router-dom";
-import { deleteProduct, getProducts, updateProduct } from '../../firebase/productService'; // ✅ updateProduct added
+import { DataGrid } from '@mui/x-data-grid';
+import React from 'react';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
-const ProductDataTable = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const productsData = await getProducts();
-      
-      if (!Array.isArray(productsData)) {
-        throw new Error("Error: Expected an array but got " + typeof productsData);
-      }
-  
-      setProducts(productsData);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-
-  const handleDelete = async (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        await deleteProduct(productId);
-        setProducts(products.filter(product => product.id !== productId));
-        alert('Product deleted successfully');
-      } catch (error) {
-        alert('Error deleting product: ' + error.message);
-      }
-    }
-  };
-
-  const handleBestSellerToggle = async (productId, currentStatus) => {
-    try {
-      await updateProduct(productId, { bestSeller: !currentStatus }); // ✅ Update in Firebase
-      setProducts(products.map(product => 
-        product.id === productId ? { ...product, bestSeller: !currentStatus } : product
-      ));
-    } catch (error) {
-      console.error('Error updating best seller status:', error);
-      alert('Error updating best seller status: ' + error.message);
-    }
-  };
-
+const ProductDataTable = ({ products, loading, onProductAction }) => {
   const columns = [
     {
-      field: "id",
-      headerName: "Product ID",
+      field: 'productName',
+      headerName: 'Product Name',
       flex: 1,
-      minWidth: 130,
-    },
-    {
-      field: "productName",
-      headerName: "Product Name",
-      flex: 1.5,
-      minWidth: 180,
-    },
-    {
-      field: "category",
-      headerName: "Category",
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      field: "cost",
-      headerName: "Price",
-      flex: 0.8,
-      minWidth: 100,
+      minWidth: 200,
       renderCell: (params) => (
-        <div className="font-medium">₹{params.value}</div>
-      ),
-    },
-    {
-      field: "stock",
-      headerName: "Stock",
-      flex: 0.8,
-      minWidth: 100,
-      renderCell: (params) => (
-        <div className={parseInt(params.value) < 10 ? 'text-red-600' : 'text-green-600'}>
-          {params.value}
+        <div className="flex items-center gap-2">
+          <img 
+            src={params.row.imageUrl} 
+            alt={params.value}
+            className="w-10 h-10 rounded-md object-cover"
+          />
+          <div className="flex flex-col">
+            <span className="font-medium">{params.value}</span>
+            <span className="text-xs text-gray-500">{params.row.subTitle}</span>
+          </div>
         </div>
-      ),
+      )
     },
     {
-      field: "bestSeller",
-      headerName: "Best Seller",
-      flex: 0.8,
-      minWidth: 120,
+      field: 'costPrice',
+      headerName: 'Cost Price',
+      flex: 0.5,
+      minWidth: 100,
+      renderCell: (params) => `₹${params.value.toFixed(2)}`
+    },
+    {
+      field: 'dealerCost',
+      headerName: 'Dealer Price',
+      flex: 0.5,
+      minWidth: 100,
+      renderCell: (params) => `₹${params.value.toFixed(2)}`
+    },
+    {
+      field: 'stockQuantity',
+      headerName: 'Stock',
+      flex: 0.5,
+      minWidth: 80,
       renderCell: (params) => (
-        <Checkbox
-          checked={params.row.bestSeller || false}
-          onChange={() => handleBestSellerToggle(params.row.id, params.row.bestSeller)}
-          color="success"
-        />
-      ),
+        <span className={params.value < 10 ? 'text-red-600' : 'text-green-600'}>
+          {params.value}
+        </span>
+      )
     },
     {
-      field: "actions",
-      headerName: "Actions",
-      flex: 1,
-      minWidth: 150,
+      field: 'gst',
+      headerName: 'GST',
+      flex: 0.3,
+      minWidth: 70,
+      renderCell: (params) => `${params.value}%`
+    },
+    {
+      field: 'discount',
+      headerName: 'Discount',
+      flex: 0.3,
+      minWidth: 80,
+      renderCell: (params) => params.value > 0 ? `${params.value}%` : '-'
+    },
+    {
+      field: 'isActive',
+      headerName: 'Status',
+      flex: 0.4,
+      minWidth: 100,
+      renderCell: (params) => (
+        <span className={`px-2 py-1 rounded-full text-xs ${
+          params.value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        }`}>
+          {params.value ? 'Active' : 'Inactive'}
+        </span>
+      )
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      flex: 0.5,
+      minWidth: 100,
       renderCell: (params) => (
         <div className="flex gap-2">
-          <Tooltip title="View">
-            <IconButton onClick={() => navigate(`/dashboard/product-details/${params.row.id}`)}>
-              <GrFormView />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Edit">
-            <IconButton onClick={() => navigate(`/dashboard/edit-product/${params.row.id}`)}>
+          <Link to={`/dashboard/edit-product/${params.row._id}`}>
+            <button className="p-1 text-blue-600 hover:text-blue-800">
               <FiEdit2 />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <IconButton onClick={() => handleDelete(params.row.id)}>
-              <MdDeleteOutline />
-            </IconButton>
-          </Tooltip>
+            </button>
+          </Link>
+          <button 
+            onClick={() => onProductAction('delete', params.row._id)}
+            className="p-1 text-red-600 hover:text-red-800"
+          >
+            <FiTrash2 />
+          </button>
         </div>
-      ),
-    },
+      )
+    }
   ];
 
   return (
-    <div className="w-full h-full bg-white rounded-lg shadow-md">
-      <div className="w-full h-[calc(100vh-200px)]">
-        <DataGrid
-          rows={products}
-          columns={columns}
-          pageSize={10}
-          rowsPerPageOptions={[10, 25, 50]}
-          checkboxSelection
-          disableSelectionOnClick
-          loading={loading}
-          sx={{
-            border: '1px solid #e0e0e0',
-            '& .MuiDataGrid-cell': {
-              borderRight: '1px solid #e0e0e0',
-              borderBottom: '1px solid #e0e0e0',
-              padding: '8px 16px',
-            },
-            '& .MuiDataGrid-columnHeader': {
-              borderRight: '1px solid #e0e0e0',
-              backgroundColor: '#f8f9fa',
-              padding: '12px 16px',
-              fontWeight: 'bold',
-            },
-            '& .MuiDataGrid-columnHeaders': {
-              borderBottom: '2px solid #e0e0e0',
-              backgroundColor: '#f8f9fa',
-            },
-            '& .MuiDataGrid-row': {
-              '&:nth-of-type(even)': {
-                backgroundColor: '#fafafa',
-              },
-              '&:hover': {
-                backgroundColor: '#f5f5f5',
-              },
-            },
-            '& .MuiDataGrid-footerContainer': {
-              borderTop: '2px solid #e0e0e0',
-            },
-            '& .MuiCheckbox-root': {
-              color: '#00922f',
-            },
-            '& .MuiDataGrid-columnHeaderCheckbox': {
-              borderRight: '1px solid #e0e0e0',
-            },
-            '& .MuiDataGrid-cellCheckbox': {
-              borderRight: '1px solid #e0e0e0',
-            }
-          }}
-        />
-      </div>
+    <div style={{ height: 600, width: '100%' }}>
+      <DataGrid
+        rows={products}
+        columns={columns}
+        loading={loading}
+        getRowId={(row) => row._id}
+        pageSize={10}
+        rowsPerPageOptions={[10]}
+        checkboxSelection
+        disableSelectionOnClick
+      />
     </div>
   );
 };

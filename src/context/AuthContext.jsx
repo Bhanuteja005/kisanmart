@@ -32,7 +32,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (userData) => {
+    try {
+      const response = await authAPI.register({
+        ...userData,
+        permissions: {
+          read: true,
+          write: true,
+          delete: false // Sub-admins cannot delete
+        }
+      });
 
+      if (response.data?.success) {
+        return { success: true };
+      }
+      return { 
+        success: false, 
+        error: response.data?.message || 'Registration failed' 
+      };
+    } catch (error) {
+      console.error('Registration error:', error);
+      return {
+        success: false,
+        error: error.message === 'Network Error' 
+          ? 'Unable to connect to server. Please check your internet connection.' 
+          : error.response?.data?.message || 'Registration failed'
+      };
+    }
+  };
 
   const login = async (credentials) => {
     try {
@@ -83,7 +110,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, register, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

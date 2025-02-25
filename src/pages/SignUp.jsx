@@ -14,7 +14,7 @@ const SignUp = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "admin"
+    role: "sub-admin" // Fixed role for sub-admin
   });
 
   const handleSubmit = async (e) => {
@@ -22,15 +22,14 @@ const SignUp = () => {
     setIsLoading(true);
 
     try {
-      // Remove confirmPassword before sending to API
-      const { confirmPassword, ...registerData } = formData;
-      
-      if (confirmPassword !== formData.password) {
+      if (formData.password !== formData.confirmPassword) {
         toast.error("Passwords don't match");
         return;
       }
 
+      const { confirmPassword, ...registerData } = formData;
       const result = await register(registerData);
+
       if (result?.success) {
         toast.success('Registration successful! Please login.');
         navigate('/login');
@@ -132,6 +131,15 @@ const SignUp = () => {
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
+              </div>
+
+              <div className="mt-4 text-sm text-gray-600">
+                <p>Sub-admin accounts have the following permissions:</p>
+                <ul className="list-disc ml-5 mt-2">
+                  <li>View all data</li>
+                  <li>Create and edit entries</li>
+                  <li>Cannot delete data</li>
+                </ul>
               </div>
             </div>
 
