@@ -36,28 +36,50 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.login(credentials);
       
-      if (response && response.token) {
-        localStorage.setItem('auth_token', response.token);
-        const userData = {
-          email: response.email,
-          role: response.role,
-          name: response.name
+      if (response?.data?.token) {
+        // Validate user data before storing
+        if (!response.data.user?.id || !response.data.user?.email) {
+          throw new Error('Invalid user data received');
+        }
+  
+        const minimalUserData = {
+          id: response.data.user.id,
+          email: response.data.user.email,
+          role: response.data.user.role || 'user'
         };
-        localStorage.setItem('user', JSON.stringify(userData));
-        setUser(userData);
-        
+  
+        try {
+          // Clear and set new data
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('user');
+          localStorage.setItem('auth_token', response.data.token);
+          localStorage.setItem('user', JSON.stringify(minimalUserData));
+        } catch (storageError) {
+          console.error('Storage error:', storageError);
+          // Handle QuotaExceededError
+          if (storageError.name === 'QuotaExceededError') {
+            localStorage.clear();
+            localStorage.setItem('auth_token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(minimalUserData));
+          }
+        }
+  
+        setUser(minimalUserData);
         return { success: true };
       }
-      return { success: false, error: 'Invalid response from server' };
-    } catch (error) {
-      console.error('Login failed:', error);
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Connection failed. Please try again.'
+      return { 
+        success: false, 
+        error: 'Invalid server response' 
       };
+    } catch (error) {
+      console.error('Login error:', error);
+      const errorMessage = error.response?.data?.message 
+        || (error.message === 'Network Error' 
+            ? 'Unable to connect to server' 
+            : 'Login failed');
+      return { success: false, error: errorMessage };
     }
   };
-
   const logout = async () => {
     try {
       await authAPI.logout();
