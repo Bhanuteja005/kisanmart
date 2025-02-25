@@ -32,54 +32,66 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const safeLocalStorage = {
+    set: (key, value) => {
+      try {
+        // Clear some space if needed
+        if (localStorage.length > 0) {
+          const oldKeys = Object.keys(localStorage)
+            .filter(k => k !== 'auth_token' && k !== 'user')
+            .slice(0, 2); // Remove 2 old items
+          oldKeys.forEach(k => localStorage.removeItem(k));
+        }
+        localStorage.setItem(key, value);
+      } catch (error) {
+        console.error('Storage error:', error);
+        // If still failing, clear all and try again
+        if (error.name === 'QuotaExceededError') {
+          localStorage.clear();
+          try {
+            localStorage.setItem(key, value);
+          } catch (e) {
+            console.error('Failed even after clearing storage:', e);
+          }
+        }
+      }
+    }
+  };
+
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
+      console.log('Login response:', response);
       
-      if (response?.data?.token) {
-        // Validate user data before storing
-        if (!response.data.user?.id || !response.data.user?.email) {
-          throw new Error('Invalid user data received');
-        }
-  
-        const minimalUserData = {
-          id: response.data.user.id,
-          email: response.data.user.email,
-          role: response.data.user.role || 'user'
+      if (response && response.token) {
+        const userData = {
+          email: response.email,
+          name: response.name,
+          role: response.role
         };
-  
-        try {
-          // Clear and set new data
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('user');
-          localStorage.setItem('auth_token', response.data.token);
-          localStorage.setItem('user', JSON.stringify(minimalUserData));
-        } catch (storageError) {
-          console.error('Storage error:', storageError);
-          // Handle QuotaExceededError
-          if (storageError.name === 'QuotaExceededError') {
-            localStorage.clear();
-            localStorage.setItem('auth_token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(minimalUserData));
-          }
-        }
-  
-        setUser(minimalUserData);
+
+        // Store auth data
+        localStorage.setItem('auth_token', response.token);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        setUser(userData);
         return { success: true };
       }
       return { 
         success: false, 
-        error: 'Invalid server response' 
+        error: response?.message || 'Invalid response from server' 
       };
     } catch (error) {
       console.error('Login error:', error);
-      const errorMessage = error.response?.data?.message 
-        || (error.message === 'Network Error' 
-            ? 'Unable to connect to server' 
-            : 'Login failed');
-      return { success: false, error: errorMessage };
+      return {
+        success: false,
+        error: error.message === 'Network Error' 
+          ? 'Unable to connect to server. Please check your internet connection.' 
+          : error.response?.data?.message || 'Login failed'
+      };
     }
   };
+
   const logout = async () => {
     try {
       await authAPI.logout();

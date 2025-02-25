@@ -39,14 +39,16 @@ api.interceptors.response.use(
 export const authAPI = {
   login: async (credentials) => {
     try {
-      const response = await api.post('/api/admin/login', credentials, {
+      const response = await axios({
+        method: 'POST',
+        url: `${API_BASE_URL}/api/admin/login`,
+        data: credentials,
         headers: {
           'Content-Type': 'application/json'
         }
       });
-      
-      console.log('Server response:', response.data);
-      return response.data;
+
+      return response.data; // Return the data directly
     } catch (error) {
       console.error('Login error:', {
         message: error.message,
