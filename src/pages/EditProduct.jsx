@@ -83,6 +83,7 @@ const EditProduct = () => {
         description: e.target.description.value,
         cost: Number(e.target.cost.value),
         stockQuantity: Number(e.target.stockQuantity.value),
+        bestSeller: e.target.bestSeller.checked, 
         variants: product.productType === 'multi' ? variants : null,
       };
 
@@ -182,7 +183,11 @@ const EditProduct = () => {
             className="border outline-none w-full text-xl font-semibold text-gray-dark rounded-lg p-2"
           />
         </div>
-
+        <div className="flex items-center mt-2">
+            <input type="checkbox" name="bestSeller" defaultChecked={product.bestSeller || false} className="w-5 h-5 accent-blue-500" />
+            <label htmlFor="bestSeller" className="ml-2 text-xl font-semibold text-gray-dark">Best Seller</label>
+          </div>
+          
         {product.productType === 'multi' && (
           <div className="border-t mt-4 pt-4">
             <div className="flex justify-between items-center mb-4">

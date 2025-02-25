@@ -109,7 +109,17 @@ const ProductDetails = () => {
               <DetailRow label="MOQ" value={product.moq} />
               <DetailRow label="GST" value={`${product.gst}%`} />
               <DetailRow label="Discount" value={`${product.discount}%`} />
-              
+
+              {/* Best Seller Checkbox */}
+              <div className="w-full mb-4 flex items-center gap-2">  
+                <input 
+                  type="checkbox" 
+                  checked={product.bestSeller || false} 
+                  disabled 
+                />
+                <span className="text-xl font-semibold">Best Seller</span>
+              </div>
+
               {/* Variants Section */}
               {product.productType === 'multi' && product.variants && (
                 <div className="mt-6 border-t pt-4">

@@ -5,8 +5,9 @@ import React, { useEffect, useState } from 'react';
 import { FiEdit2 } from "react-icons/fi";
 import { GrFormView } from "react-icons/gr";
 import { MdDeleteOutline } from "react-icons/md";
+import Checkbox from "@mui/material/Checkbox"; // ✅ Added for Best Seller checkbox
 import { useNavigate } from "react-router-dom";
-import { deleteProduct, getProducts } from '../../firebase/productService';
+import { deleteProduct, getProducts, updateProduct } from '../../firebase/productService'; // ✅ updateProduct added
 
 const ProductDataTable = () => {
   const [products, setProducts] = useState([]);
@@ -16,16 +17,24 @@ const ProductDataTable = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+
   const fetchProducts = async () => {
     try {
       const productsData = await getProducts();
+      
+      if (!Array.isArray(productsData)) {
+        throw new Error("Error: Expected an array but got " + typeof productsData);
+      }
+  
       setProducts(productsData);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
     } finally {
       setLoading(false);
     }
   };
+  
+
   const handleDelete = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
@@ -37,6 +46,19 @@ const ProductDataTable = () => {
       }
     }
   };
+
+  const handleBestSellerToggle = async (productId, currentStatus) => {
+    try {
+      await updateProduct(productId, { bestSeller: !currentStatus }); // ✅ Update in Firebase
+      setProducts(products.map(product => 
+        product.id === productId ? { ...product, bestSeller: !currentStatus } : product
+      ));
+    } catch (error) {
+      console.error('Error updating best seller status:', error);
+      alert('Error updating best seller status: ' + error.message);
+    }
+  };
+
   const columns = [
     {
       field: "id",
@@ -77,6 +99,19 @@ const ProductDataTable = () => {
       ),
     },
     {
+      field: "bestSeller",
+      headerName: "Best Seller",
+      flex: 0.8,
+      minWidth: 120,
+      renderCell: (params) => (
+        <Checkbox
+          checked={params.row.bestSeller || false}
+          onChange={() => handleBestSellerToggle(params.row.id, params.row.bestSeller)}
+          color="success"
+        />
+      ),
+    },
+    {
       field: "actions",
       headerName: "Actions",
       flex: 1,
@@ -102,10 +137,10 @@ const ProductDataTable = () => {
       ),
     },
   ];
+
   return (
     <div className="w-full h-full bg-white rounded-lg shadow-md">
-
-      <div className="w-full h-[calc(100vh-200px)]"> {/* Adjusted height */}
+      <div className="w-full h-[calc(100vh-200px)]">
         <DataGrid
           rows={products}
           columns={columns}
