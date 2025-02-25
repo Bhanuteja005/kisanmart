@@ -1,12 +1,13 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://154.61.80.166:3000';
+const API_BASE_URL = 'http://154.61.80.166:5000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: false
 });
 
 // Request interceptor for API calls
@@ -36,59 +37,76 @@ api.interceptors.response.use(
 );
 
 export const authAPI = {
-  login: (data) => api.post('/auth/login', data),
-  register: (data) => api.post('/auth/register', data),
-  logout: () => api.post('/auth/logout'),
-  verifyToken: () => api.get('/auth/verify'),
+  login: async (credentials) => {
+    try {
+      const response = await api.post('/api/admin/login', credentials, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('Server response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Login error:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+      throw error;
+    }
+  },
+  register: (data) => api.post('/api/admin/create', data),
+  logout: () => api.post('/api/admin/logout'),
 };
 
 export const productsAPI = {
-  getAll: () => api.get('/products'),
-  getById: (id) => api.get(`/products/${id}`),
-  create: (data) => api.post('/products', data),
-  update: (id, data) => api.put(`/products/${id}`, data),
-  delete: (id) => api.delete(`/products/${id}`),
+  getAll: () => api.get('/api/products'),
+  getById: (id) => api.get(`/api/products/${id}`),
+  create: (data) => api.post('/api/products', data),
+  update: (id, data) => api.put(`/api/products/${id}`, data),
+  delete: (id) => api.delete(`/api/products/${id}`),
 };
 
 export const categoriesAPI = {
-  getAll: () => api.get('/categories'),
-  getById: (id) => api.get(`/categories/${id}`),
-  create: (data) => api.post('/categories', data),
-  update: (id, data) => api.put(`/categories/${id}`, data),
-  delete: (id) => api.delete(`/categories/${id}`),
-  getSubcategories: (categoryId) => api.get(`/categories/${categoryId}/subcategories`),
+  getAll: () => api.get('/api/categories'),
+  getById: (id) => api.get(`/api/categories/${id}`),
+  create: (data) => api.post('/api/categories', data),
+  update: (id, data) => api.put(`/api/categories/${id}`),
+  delete: (id) => api.delete(`/api/categories/${id}`),
+  getSubcategories: (categoryId) => api.get(`/api/categories/${categoryId}/subcategories`),
 };
 
 export const subcategoriesAPI = {
-  getAll: () => api.get('/subcategories'),
-  getById: (id) => api.get(`/subcategories/${id}`),
-  create: (data) => api.post('/subcategories', data),
-  update: (id, data) => api.put(`/subcategories/${id}`, data),
-  delete: (id) => api.delete(`/subcategories/${id}`),
+  getAll: () => api.get('/api/subcategories'),
+  getById: (id) => api.get(`/api/subcategories/${id}`),
+  create: (data) => api.post('/api/subcategories', data),
+  update: (id, data) => api.put(`/api/subcategories/${id}`),
+  delete: (id) => api.delete(`/api/subcategories/${id}`),
 };
 
 export const dealersAPI = {
-  getAll: () => api.get('/dealers'),
-  getById: (id) => api.get(`/dealers/${id}`),
-  create: (data) => api.post('/dealers', data),
-  update: (id, data) => api.put(`/dealers/${id}`, data),
-  delete: (id) => api.delete(`/dealers/${id}`),
+  getAll: () => api.get('/api/dealers'),
+  getById: (id) => api.get(`/api/dealers/${id}`),
+  create: (data) => api.post('/api/dealers', data),
+  update: (id, data) => api.put(`/api/dealers/${id}`),
+  delete: (id) => api.delete(`/api/dealers/${id}`)
 };
 
 export const customersAPI = {
-  getAll: () => api.get('/customers'),
-  getById: (id) => api.get(`/customers/${id}`),
-  create: (data) => api.post('/customers', data),
-  update: (id, data) => api.put(`/customers/${id}`, data),
-  delete: (id) => api.delete(`/customers/${id}`),
+  getAll: () => api.get('/api/customers'),
+  getById: (id) => api.get(`/api/customers/${id}`),
+  create: (data) => api.post('/api/customers', data),
+  update: (id, data) => api.put(`/api/customers/${id}`),
+  delete: (id) => api.delete(`/api/customers/${id}`),
 };
 
 export const staffAPI = {
-  getAll: () => api.get('/staff'),
-  getById: (id) => api.get(`/staff/${id}`),
-  create: (data) => api.post('/staff', data),
-  update: (id, data) => api.put(`/staff/${id}`, data),
-  delete: (id) => api.delete(`/staff/${id}`),
+  getAll: () => api.get('/api/staff'),
+  getById: (id) => api.get(`/api/staff/${id}`),
+  create: (data) => api.post('/api/staff', data),
+  update: (id, data) => api.put(`/api/staff/${id}`),
+  delete: (id) => api.delete(`/api/staff/${id}`),
 };
 
 export default api;

@@ -1,26 +1,40 @@
 import React, { useState } from "react";
 import { toast } from 'react-hot-toast';
 import { BsFillHandbagFill } from "react-icons/bs";
+import { useNavigate } from 'react-router-dom';
 import MobileloginCristina from '../assets/Mobile-login-Cristina.jpg';
 import { useAuth } from '../context/AuthContext';
 import '../index.css';
+
 const LogIn = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [credentials, setCredentials] = useState({
     email: "",
     password: ""
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+    setError('');
+
     try {
-      const result = await login(credentials);
-      if (!result.success) {
-        toast.error(result.error);
+      const loginResult = await login(credentials);
+      
+      if (loginResult.success) {
+        toast.success('Login successful');
+        navigate('/dashboard');
+      } else {
+        setError(loginResult.error);
+        toast.error(loginResult.error || 'Login failed');
       }
+    } catch (error) {
+      console.error('Login Error:', error);
+      setError('Server connection failed. Please try again later.');
+      toast.error('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -43,7 +57,6 @@ const LogIn = () => {
             alt="Farm Tools" 
             className="max-w-full h-auto rounded-2xl shadow-2xl"
           />
-          
         </div>
       </div>
 
@@ -122,6 +135,12 @@ const LogIn = () => {
               </div>
             </div>
 
+            {error && (
+              <div className="text-red-500 text-sm">
+                {error}
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={isLoading}
@@ -130,7 +149,6 @@ const LogIn = () => {
               {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
-
           <div className="text-center text-sm text-gray-600">
             Need help? Contact support
           </div>

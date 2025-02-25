@@ -1,24 +1,17 @@
 import { Toaster } from 'react-hot-toast';
-import { Route, Routes } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute";
-// ...other imports...
+import { BrowserRouter as Router } from "react-router-dom";
+import { AuthProvider } from './context/AuthContext';
+import AppRoutes from './routes/AppRoutes';
 
-const App = () => {
+function App() {
   return (
-    <>
-      <Toaster position="top-right" />
-      <Routes>
-        <Route path="/login" element={<LogIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/dashboard/*" element={
-          <ProtectedRoute>
-            <DashBoard />
-          </ProtectedRoute>
-        } />
-        {/* ...other routes... */}
-      </Routes>
-    </>
+    <Router>
+      <AuthProvider>
+        <Toaster position="top-right" />
+        <AppRoutes />
+      </AuthProvider>
+    </Router>
   );
-};
+}
 
 export default App;

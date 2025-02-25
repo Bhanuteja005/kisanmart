@@ -17,12 +17,15 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      if (token) {
-        const response = await authAPI.verifyToken();
-        setUser(response.data.user);
+      const userData = localStorage.getItem('user');
+      
+      if (token && userData) {
+        const user = JSON.parse(userData);
+        setUser(user);
       }
     } catch (error) {
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('user');
       setUser(null);
     } finally {
       setLoading(false);
@@ -32,17 +35,25 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
-      const { token, user } = response.data;
-      localStorage.setItem('auth_token', token);
-      setUser(user);
-      toast.success('Login successful!');
-      navigate('/dashboard');
-      return { success: true };
+      
+      if (response && response.token) {
+        localStorage.setItem('auth_token', response.token);
+        const userData = {
+          email: response.email,
+          role: response.role,
+          name: response.name
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+        
+        return { success: true };
+      }
+      return { success: false, error: 'Invalid response from server' };
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      console.error('Login failed:', error);
       return {
         success: false,
-        error: error.response?.data?.message || 'Login failed'
+        error: error.response?.data?.message || 'Connection failed. Please try again.'
       };
     }
   };
@@ -54,6 +65,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Logout error:', error);
     } finally {
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('user');
       setUser(null);
       navigate('/login');
       toast.success('Logged out successfully');

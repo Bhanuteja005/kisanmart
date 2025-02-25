@@ -1,48 +1,94 @@
 import React, { useState } from "react";
+import { toast } from 'react-hot-toast';
+import { BsFillHandbagFill } from "react-icons/bs";
 import { Link, useNavigate } from "react-router-dom";
-import farmToolsImage from '../assets/farm-tools.jpg';
+import MobileloginCristina from '../assets/Mobile-login-Cristina.jpg';
+import { useAuth } from '../context/AuthContext'; // Changed from authAPI
 
 const SignUp = () => {
+  const navigate = useNavigate();
+  const { register } = useAuth(); // Using AuthContext instead of direct API call
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    role: "admin"
   });
-  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add signup logic here
-    navigate('/login');
+    setIsLoading(true);
+
+    try {
+      // Remove confirmPassword before sending to API
+      const { confirmPassword, ...registerData } = formData;
+      
+      if (confirmPassword !== formData.password) {
+        toast.error("Passwords don't match");
+        return;
+      }
+
+      const result = await register(registerData);
+      if (result?.success) {
+        toast.success('Registration successful! Please login.');
+        navigate('/login');
+      } else {
+        toast.error(result?.error || 'Registration failed');
+      }
+    } catch (error) {
+      toast.error(error?.message || 'Registration failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left side - Image */}
+    <div className="min-h-screen flex flex-col lg:flex-row">
       <div className="hidden lg:flex lg:w-1/2 bg-blue-50">
         <div className="w-full flex items-center justify-center p-8">
-          <img 
-            src={farmToolsImage} 
-            alt="Farm Tools" 
-            className="max-w-full h-auto rounded-2xl shadow-2xl"
-          />
+          <img src={MobileloginCristina} alt="Farm Tools" className="max-w-full h-auto rounded-2xl shadow-2xl" />
         </div>
       </div>
 
-      {/* Right side - Sign Up Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h1 className="text-4xl font-bold text-center text-gray-900 mb-2">
-              Create Account
-            </h1>
-            <p className="text-center text-gray-600">
-              Join KisanMart Admin Dashboard
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-8">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <BsFillHandbagFill className="mx-auto h-12 w-12 text-[#00922F]" />
+            <h2 className="mt-6 text-3xl font-bold text-gray-900">Create your account</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Already have an account?{' '}
+              <Link to="/login" className="font-medium text-[#00922F] hover:text-[#007d28]">
+                Sign in
+              </Link>
             </p>
           </div>
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <div className="rounded-md shadow-sm space-y-4">
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  Full Name
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                />
+              </div>
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email address
@@ -53,9 +99,8 @@ const SignUp = () => {
                   type="email"
                   required
                   value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="admin@example.com"
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
               </div>
 
@@ -69,9 +114,8 @@ const SignUp = () => {
                   type="password"
                   required
                   value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="••••••••"
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
               </div>
 
@@ -85,27 +129,20 @@ const SignUp = () => {
                   type="password"
                   required
                   value={formData.confirmPassword}
-                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                  className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="••••••••"
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#00922F] hover:bg-[#007d28] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              disabled={isLoading}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#00922F] hover:bg-[#007d28] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
-              Sign Up
+              {isLoading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
-
-          <div className="text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link to="/login" className="font-medium text-[#00922F] hover:text-[#007d28]">
-              Login here
-            </Link>
-          </div>
         </div>
       </div>
     </div>
