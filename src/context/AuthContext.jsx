@@ -32,31 +32,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const safeLocalStorage = {
-    set: (key, value) => {
-      try {
-        // Clear some space if needed
-        if (localStorage.length > 0) {
-          const oldKeys = Object.keys(localStorage)
-            .filter(k => k !== 'auth_token' && k !== 'user')
-            .slice(0, 2); // Remove 2 old items
-          oldKeys.forEach(k => localStorage.removeItem(k));
-        }
-        localStorage.setItem(key, value);
-      } catch (error) {
-        console.error('Storage error:', error);
-        // If still failing, clear all and try again
-        if (error.name === 'QuotaExceededError') {
-          localStorage.clear();
-          try {
-            localStorage.setItem(key, value);
-          } catch (e) {
-            console.error('Failed even after clearing storage:', e);
-          }
-        }
-      }
-    }
-  };
+
 
   const login = async (credentials) => {
     try {
