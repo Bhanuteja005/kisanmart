@@ -1,13 +1,16 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://154.61.80.166:5000';
+// Use environment variable with fallback
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://154.61.80.166:5000';
 
+// Base API configuration
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: false
+  withCredentials: false,
+  timeout: 15000, // 15 second timeout
 });
 
 // Request interceptor for API calls
@@ -39,22 +42,36 @@ api.interceptors.response.use(
 export const authAPI = {
   login: async (credentials) => {
     try {
+      // Use proxy URL in production
+      const loginUrl = process.env.NODE_ENV === 'production' 
+        ? '/api/admin/login'
+        : `${API_BASE_URL}/api/admin/login`;
+
       const response = await axios({
         method: 'POST',
-        url: `${API_BASE_URL}/api/admin/login`,
+        url: loginUrl,
         data: credentials,
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        timeout: 10000
       });
 
-      return response.data; // Return the data directly
+      return response.data;
     } catch (error) {
-      console.error('Login error:', {
+      console.error('Login error details:', {
         message: error.message,
-        status: error.response?.status,
-        data: error.response?.data
+        code: error.code,
+        response: error.response?.data
       });
+      
+      // Enhanced error handling
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Connection failed. Please check your internet connection.');
+      }
+      if (error.response?.status === 401) {
+        throw new Error('Invalid credentials');
+      }
       throw error;
     }
   },
